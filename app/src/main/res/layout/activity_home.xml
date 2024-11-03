@@ -1,72 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/home"
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context=".HomeActivity">
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+    android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
+        android:id="@+id/home"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="40dp"
-        android:background="@drawable/linear_layout_border">
+        android:layout_height="match_parent">
+
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/linear_layout_border">
+
+            <ImageButton
+                android:id="@+id/menu_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_margin="5dp"
+                android:background="@android:color/white"
+                android:contentDescription="@string/settings_and_login_menu"
+                android:src="@drawable/hamburger_menu" />
+
+            <EditText
+                android:id="@+id/search_bar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:autofillHints="Search locations"
+                android:hint="@string/search_locations"
+                android:inputType="text"
+                android:padding="12dp"
+                android:layout_margin="5dp"
+                android:background="@android:color/white"
+                android:layout_weight="1" />
+
+            <ImageButton
+                android:id="@+id/filters_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:layout_margin="5dp"
+                android:background="@android:color/white"
+                android:contentDescription="@string/filters"
+                android:src="@drawable/filter_icon" />
+        </LinearLayout>
 
         <ImageButton
-            android:id="@+id/menu_button"
+            android:id="@+id/zoom_in_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:layout_margin="5dp"
-            android:background="@android:color/white"
-            android:contentDescription="@string/settings_and_login_menu"
-            android:src="@drawable/hamburger_menu" />
-
-        <EditText
-            android:id="@+id/search_bar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:autofillHints="Search locations"
-            android:hint="@string/search_locations"
-            android:inputType="text"
-            android:padding="12dp"
-            android:layout_margin="5dp"
-            android:background="@android:color/white"
-            android:layout_weight="1" />
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="100dp"
+            android:background="@drawable/black_border"
+            android:contentDescription="@string/zoom_in"
+            android:src="@drawable/zoom_in" />
 
         <ImageButton
-            android:id="@+id/filters_button"
+            android:id="@+id/zoom_out_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:layout_margin="5dp"
-            android:background="@android:color/white"
-            android:contentDescription="@string/filters"
-            android:src="@drawable/filter_icon" />
-    </LinearLayout>
+            android:layout_alignParentBottom="true"
+            android:layout_above="@id/zoom_in_button"
+            android:layout_marginStart="10dp"
+            android:layout_marginBottom="40dp"
+            android:background="@drawable/black_border"
+            android:contentDescription="@string/zoom_out"
+            android:src="@drawable/zoom_out" />
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/favorites_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/favorites_list"
+            android:src="@drawable/favorites_heart" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/favorites_button"
+    </RelativeLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/navigation_view"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/favorites_list"
-        android:src="@drawable/favorites_heart"/>
-
-
-</RelativeLayout>
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:fitsSystemWindows="true"
+        android:background="@android:color/white"
+        app:menu="@menu/navigation_menu"
+        app:itemTextAppearance="@style/NavigationTextStyle"
+        app:headerLayout="@layout/navigation_header" />
+</androidx.drawerlayout.widget.DrawerLayout>
