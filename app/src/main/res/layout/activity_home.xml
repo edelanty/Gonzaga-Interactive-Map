@@ -21,14 +21,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="35dp"
+        android:layout_marginTop="40dp"
         android:background="@drawable/linear_layout_border">
 
         <ImageButton
             android:id="@+id/menu_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:padding="12dp"
             android:layout_margin="5dp"
             android:background="@android:color/white"
             android:contentDescription="@string/settings_and_login_menu"
@@ -41,7 +41,7 @@
             android:autofillHints="Search locations"
             android:hint="@string/search_locations"
             android:inputType="text"
-            android:padding="10dp"
+            android:padding="12dp"
             android:layout_margin="5dp"
             android:background="@android:color/white"
             android:layout_weight="1" />
@@ -50,7 +50,7 @@
             android:id="@+id/filters_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
+            android:padding="12dp"
             android:layout_margin="5dp"
             android:background="@android:color/white"
             android:contentDescription="@string/filters"

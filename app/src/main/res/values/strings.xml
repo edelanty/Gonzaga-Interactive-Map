@@ -5,4 +5,10 @@
     <string name="settings_and_login_menu">settings and login menu</string>
     <string name="filters">filters</string>
     <string name="title_activity_maps">MapsActivity</string>
+    <string name="food">Food</string>
+    <string name="study_spots">Study Spots</string>
+    <string name="classrooms">Classrooms</string>
+    <string name="clear">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="confirm">Confirm</string>
 </resources>
