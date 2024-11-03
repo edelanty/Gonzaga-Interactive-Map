@@ -17,7 +17,9 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.material.navigation.NavigationView
 
 
@@ -180,11 +182,55 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
 
+        limitMapBounds(mMap)
+        drawRestrictedShape(mMap)
+
         // Add a marker at Gonzaga and move the camera
         val gonzaga = LatLng(47.667191, -117.402382)
         mMap.addMarker(MarkerOptions().position(gonzaga).title("Marker at Gonzaga"))
 
         // Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
+    }
+
+    private fun drawRestrictedShape(mMap: GoogleMap) {
+        val outerBounds = listOf(
+            LatLng(47.700, -117.440), // top-left corner
+            LatLng(47.700, -117.360), // top-right corner
+            LatLng(47.630, -117.360), // bottom-right corner
+            LatLng(47.630, -117.440)  // bottom-left corner
+        )
+
+        //Define inner boundary, campus and freshman housing
+        val innerBounds = listOf(
+            LatLng(47.67063, -117.41117), // top-left of campus
+            LatLng(47.67063, -117.394903), // top-right of campus
+            LatLng(47.66174, -117.394903), // bottom-right of campus
+            LatLng(47.66174, -117.41117)  // bottom-left of campus
+
+        )
+
+        //Creating the shape
+        val restrictedArea = mMap.addPolygon(
+            PolygonOptions()
+                .addAll(outerBounds) // Outer boundary (visible)
+                .addHole(innerBounds) // Inner boundary (hollow)
+                .strokeColor(0xFFFF0000.toInt()) // Red outline
+                .strokeWidth(5f) // Border width
+                .fillColor(0x44FF0000.toInt()) // Transparent red fill
+        )
+    }
+
+    //Limits the scrolling bounds for the user
+    private fun limitMapBounds(mMap: GoogleMap) {
+        val southWest = LatLng(47.66174, -117.41117)
+        val northEast = LatLng(47.67063, -117.394903)
+        val gonzagaBounds = LatLngBounds(southWest, northEast)
+
+        mMap.setLatLngBoundsForCameraTarget(gonzagaBounds)
+
+        //Limits zooming
+        mMap.setMinZoomPreference(15f)
+        mMap.setMaxZoomPreference(19f)
     }
 }
