@@ -11,4 +11,9 @@
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
     <string name="confirm">Confirm</string>
+    <string name="back_to_home">Back to Home</string>
+    <string name="favorites">Favorites</string>
+    <string name="remove_favorite">Remove Favorite</string>
+    <string name="college_hall">College Hall</string>
+    <string name="notification_bell">Notification Bell</string>
 </resources>
