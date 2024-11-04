@@ -8,6 +8,8 @@ import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.CheckBox
+import android.widget.EditText
+import android.widget.RatingBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -184,6 +186,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         limitMapBounds(mMap)
         drawRestrictedShape(mMap)
+        setupPinListeners(mMap)
 
         // Add a marker at Gonzaga and move the camera
         val gonzaga = LatLng(47.667191, -117.402382)
@@ -191,6 +194,49 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         // Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
+    }
+
+    private fun setupPinListeners(mMap: GoogleMap) {
+        //Long Press to add a pin
+        mMap.setOnMapLongClickListener { latLng ->
+            showAddPinDialog(latLng)
+        }
+
+        //If a user presses on a pin
+        mMap.setOnMarkerClickListener { marker ->
+            val intent = Intent(this, CommentRatingActivity::class.java)
+            intent.putExtra("locationName", marker.title)
+            intent.putExtra("description", marker.snippet)
+            intent.putExtra("rating", "?")
+            startActivity(intent)
+            true
+        }
+    }
+
+    private fun showAddPinDialog(latLng: LatLng) {
+        val dialogBuilder = AlertDialog.Builder(this)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_add_pin, null)
+
+        dialogBuilder.setView(dialogView)
+        val locationNameInput = dialogView.findViewById<EditText>(R.id.pin_name_input)
+        val descriptionInput = dialogView.findViewById<EditText>(R.id.pin_description_input)
+        val ratingBar = dialogView.findViewById<RatingBar>(R.id.pin_rating_bar)
+
+        dialogBuilder.setPositiveButton("Add Pin") { _, _ ->
+            //All need to be stored somewhere i.e. a database or if we just go local for time
+            val locationName = locationNameInput.text.toString()
+            val description = descriptionInput.text.toString()
+            val rating = ratingBar.rating
+
+            // locationName is the title on the map
+            mMap.addMarker(
+                MarkerOptions().position(latLng).title(locationName).snippet(description)
+            )
+
+            //TODO Send pin data to eventual database
+        }
+        dialogBuilder.setNegativeButton("Cancel", null)
+        dialogBuilder.create().show()
     }
 
     private fun drawRestrictedShape(mMap: GoogleMap) {
