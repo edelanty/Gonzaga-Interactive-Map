@@ -18,7 +18,7 @@ This app enhances the campus experience by offering students a dynamic, student-
 ### Where to Get Help
 If you encounter any issues with the project, please contact us through the project's GitHub issues page.
 
-Maintainers and Contributors
-AJ Cononetz - ajcononetz3
-Evan Delanty - edelanty
-Ethan Danitz - edanitz02
+### Maintainers and Contributors
+* AJ Cononetz - ajcononetz3
+* Evan Delanty - edelanty
+* Ethan Danitz - edanitz02
