@@ -21,4 +21,4 @@ If you encounter any issues with the project, please contact us through the proj
 Maintainers and Contributors
 AJ Cononetz - ajcononetz3
 Evan Delanty - edelanty
-Ethan Danitz -
+Ethan Danitz - edanitz02
