@@ -10,6 +10,7 @@ import android.widget.ImageButton
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.RatingBar
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
@@ -222,13 +223,17 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val descriptionInput = dialogView.findViewById<EditText>(R.id.pin_description_input)
         val ratingBar = dialogView.findViewById<RatingBar>(R.id.pin_rating_bar)
 
+        if (!markerIsInValidRange(latLng)) {
+            Toast.makeText(this, "Invalid Pin", Toast.LENGTH_SHORT).show()
+            return
+        }
+
         dialogBuilder.setPositiveButton("Add Pin") { _, _ ->
             //All need to be stored somewhere i.e. a database or if we just go local for time
             val locationName = locationNameInput.text.toString()
             val description = descriptionInput.text.toString()
             val rating = ratingBar.rating
 
-            // locationName is the title on the map
             mMap.addMarker(
                 MarkerOptions().position(latLng).title(locationName).snippet(description)
             )
@@ -237,6 +242,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
         dialogBuilder.setNegativeButton("Cancel", null)
         dialogBuilder.create().show()
+    }
+
+    //Determines if a long press is in the valid range of the campus
+    private fun markerIsInValidRange(latLng: LatLng): Boolean {
+        return (latLng.latitude in 47.66174..47.67063) && (latLng.longitude in -117.41117..-117.394903)
     }
 
     private fun drawRestrictedShape(mMap: GoogleMap) {
