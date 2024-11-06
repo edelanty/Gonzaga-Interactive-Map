@@ -191,7 +191,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         // Add a marker at Gonzaga and move the camera
         val gonzaga = LatLng(47.667191, -117.402382)
-        mMap.addMarker(MarkerOptions().position(gonzaga).title("Marker at Gonzaga"))
 
         // Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
