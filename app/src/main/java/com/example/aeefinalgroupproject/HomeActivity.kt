@@ -224,7 +224,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val ratingBar = dialogView.findViewById<RatingBar>(R.id.pin_rating_bar)
 
         if (!markerIsInValidRange(latLng)) {
-            Toast.makeText(this, "Invalid Pin", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Invalid Pin", Toast.LENGTH_LONG).show()
             return
         }
 
@@ -233,6 +233,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             val locationName = locationNameInput.text.toString()
             val description = descriptionInput.text.toString()
             val rating = ratingBar.rating
+
+            //Checking for empty attributes
+            if (locationName.isBlank() || description.isBlank()) {
+                Toast.makeText(this, "Entry Blank", Toast.LENGTH_SHORT).show()
+                return@setPositiveButton
+            }
 
             mMap.addMarker(
                 MarkerOptions().position(latLng).title(locationName).snippet(description)
