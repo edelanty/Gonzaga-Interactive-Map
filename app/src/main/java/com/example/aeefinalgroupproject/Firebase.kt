@@ -29,7 +29,6 @@ class Firebase {
                 Log.w("Firebase", "Error writing document", e)
             }
     }
-
     // Method to retrieve a user by userId
     fun getUser(userId: String, onComplete: (Map<String, Any>?) -> Unit) {
         db.collection("users").document(userId).get()
@@ -50,14 +49,14 @@ class Firebase {
 
 
     // ---------Adding a favorite-----------
-    fun addFavorite(faveId: String, rowId: Int, iconId: Int, notificationBell: Boolean) {
+    fun addFavorite(layoutName: String, iconId: Int, notificationBell: Boolean) { // iconId might del
         val favorite = hashMapOf(
-            "rowId" to rowId,
+            "layoutName" to layoutName,
             "icon" to iconId,
             "bellStatus" to notificationBell
         )
 
-        db.collection("favorites").document(faveId).set(favorite)
+        db.collection("favorites").document(layoutName).set(favorite)
             .addOnSuccessListener {
                 Log.d("Firebase", "Favorite successfully written!")
             }
@@ -65,9 +64,9 @@ class Firebase {
                 Log.w("Firebase", "Error writing document", e)
             }
     }
-    // retrieving a favorite
-    fun getFavorite(faveId: String, onComplete: (Map<String, Any>?) -> Unit) {
-        db.collection("users").document(faveId).get()
+    // retrieving a specific favorite (for testing)
+    fun getFavorite(layoutName: String, onComplete: (Map<String, Any>?) -> Unit) {
+        db.collection("users").document(layoutName).get()
             .addOnSuccessListener { document ->
                 if (document != null) {
                     Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
@@ -82,6 +81,44 @@ class Firebase {
                 onComplete(null)
             }
     }
+    // Get all favorites
+    fun getAllFavorites(onComplete: (List<Map<String, Any>>) -> Unit) {
+        db.collection("favorites").get()
+            .addOnSuccessListener { result ->
+                val favoriteList = result.documents.mapNotNull { it.data }
+                onComplete(favoriteList)
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error getting all favorites", e)
+                onComplete(emptyList())
+            }
+    }
+    // Update favorites
+    fun updateFavorite(layoutName: String, updates: Map<String, Any>) {
+        db.collection("favorites").document(layoutName)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Favorite successfully updated!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error updating document", e)
+            }
+    }
+    // Remove favorite
+    fun removeFavorite(layoutName: String, onComplete: (Boolean) -> Unit) {
+        db.collection("favorites").document(layoutName).delete()
+            .addOnSuccessListener {
+                Log.d("Firebase", "Favorite successfully deleted!")
+                onComplete(true) // Indicate success
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error deleting document", e)
+                onComplete(false) // Indicate failure
+            }
+    }
+
+
+
 
 
 
@@ -103,10 +140,10 @@ class Firebase {
         }
 
         // Add a Favorite
-        firebaseHelper.addFavorite("01", 1, 1, false)
+        firebaseHelper.addFavorite("f_college_hall",1, false)
 
-        // retrieve the favorite
-        getFavorite("01") { favoriteData ->
+        // retrieve the specific favorite
+        getFavorite("f_college_hall") { favoriteData ->
             if (favoriteData != null) {
                 val iconResource = favoriteData["iconResource"] as? Int
                 val notificationEnabled = favoriteData["notificationEnabled"] as? Boolean

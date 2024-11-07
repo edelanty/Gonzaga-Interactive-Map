@@ -26,43 +26,52 @@
         android:layout_gravity="center"
         android:paddingBottom="15dp" />
 
+<!--    COLLEGE HALL-->
+<!--    <LinearLayout-->
+<!--        android:id="@+id/favorite_row"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:padding="16dp">-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/remove_favorite"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="?android:attr/selectableItemBackground"-->
+<!--            app:tint="@android:color/holo_red_dark"-->
+<!--            android:src="@drawable/heart_filled"-->
+<!--            android:padding="16dp"-->
+<!--            android:contentDescription="@string/remove_favorite" />-->
+
+<!--        <TextView-->
+<!--            android:id="@+id/favorite_name"-->
+<!--            android:layout_width="0dp"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_weight="1"-->
+<!--            android:layout_gravity="center_vertical|center_horizontal"-->
+<!--            android:text="@string/college_hall"-->
+<!--            android:textSize="24sp"/>-->
+
+<!--        <ImageButton-->
+<!--            android:id="@+id/notification_bell"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="?android:attr/selectableItemBackground"-->
+<!--            app:tint="@android:color/black"-->
+<!--            android:src="@drawable/notifications_none"-->
+<!--            android:padding="16dp"-->
+<!--            android:contentDescription="@string/notification_bell" />-->
+<!--    </LinearLayout>-->
+
+    <!-- Container for dynamically added favorite rows -->
     <LinearLayout
-        android:id="@+id/favorite_row"
+        android:id="@+id/favorites_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:padding="16dp">
-
-        <ImageButton
-            android:id="@+id/remove_favorite"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            app:tint="@android:color/holo_red_dark"
-            android:src="@drawable/heart_filled"
-            android:padding="16dp"
-            android:contentDescription="@string/remove_favorite" />
-
-        <TextView
-            android:id="@+id/favorite_name"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical|center_horizontal"
-            android:text="@string/college_hall"
-            android:textSize="24sp"/>
-
-        <ImageButton
-            android:id="@+id/notification_bell"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground"
-            app:tint="@android:color/black"
-            android:src="@drawable/notifications_none"
-            android:padding="16dp"
-            android:contentDescription="@string/notification_bell" />
+        android:orientation="vertical" />
 
 
-    </LinearLayout>
+
 
 </LinearLayout>
