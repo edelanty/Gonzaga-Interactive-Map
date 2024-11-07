@@ -137,25 +137,36 @@ class FavoritesActivity : AppCompatActivity() {
         favoritesContainer.addView(rowView)
     }
 
+    // Removes row from database and UI
     private fun removeFaveRow(name: String, rowView: View) {
-        // Remove favorite logic here
-        firebase.removeFavorite(name) { success ->
-            if (success) {
-                // Remove the row from the UI if deletion from Firestore was successful
-                favoritesContainer.removeView(rowView)
-                Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
-
-                // clean up for memory optimization
-                rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)
-                rowView.findViewById<ImageButton>(R.id.notification_bell)?.setOnClickListener(null)
-
-                //reload faves without the view
-                onCreate(null)
-            } else {
-                Toast.makeText(this, "Failed to remove favorite", Toast.LENGTH_SHORT).show()
+        // Pop up to ask if they are sure
+        val builder = AlertDialog.Builder(this)
+        val favoriteName = rowView.findViewById<TextView>(R.id.favorite_name).text
+        builder.setTitle("Remove Favorite")
+        builder.setMessage("Are you sure you want to remove $favoriteName from your favorites?")
+        builder.setPositiveButton("Confirm") { dialog: DialogInterface, _: Int ->
+            // Remove row from the UI
+            favoritesContainer.removeView(rowView)
+            // Remove favorite from the database
+            firebase.removeFavorite(name) { success ->
+                if (success) {
+                    Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
+                    rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)
+                    rowView.findViewById<ImageButton>(R.id.notification_bell)?.setOnClickListener(null)
+                } else {
+                    Toast.makeText(this, "Failed to remove favorite", Toast.LENGTH_SHORT).show()
+                    favoritesContainer.addView(rowView)
+                }
             }
+            dialog.dismiss()
         }
+        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+        val alertDialog = builder.create()
+        alertDialog.show()
     }
+
 
 
 //    // Remove Favorite confirmation method (cancel or confirm)
