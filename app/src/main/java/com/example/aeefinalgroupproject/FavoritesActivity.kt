@@ -112,12 +112,12 @@ class FavoritesActivity : AppCompatActivity() {
 
         // set on click listener for the notification bell
         notificationBell.setOnClickListener {
-            notificationsEnabled = !notificationsEnabled
+            notificationEnabled = !notificationEnabled
             notificationBell.setImageResource(
-                if (notificationsEnabled) R.drawable.notifications_active
+                if (notificationEnabled) R.drawable.notifications_active
                 else R.drawable.notifications_none)
             // set new value in database and this rows data
-            firebase.updateFavorite(layoutName, mapOf("bellStatus" to notificationsEnabled))
+            firebase.updateFavorite(layoutName, mapOf("bellStatus" to notificationEnabled))
         }
 
         // add row to container
