@@ -44,10 +44,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuButton: ImageButton = findViewById(R.id.menu_button)
 
-        //HARDCODED FOR NOW, WE JUST ADD COLLEGE HALL HERE
-        firebase.addFavorite("f_college_hall", 1, false)
-        firebase.addFavorite("f_hemmingson", 1, true)
-        //MOVE THIS TO SOMEWHERE ELSE
+        //
 
         // Listen for drawer open/close
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
@@ -206,6 +203,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private fun setupPinListeners(mMap: GoogleMap) {
         //Long Press to add a pin
         mMap.setOnMapLongClickListener { latLng ->
+            //HARDCODED FOR NOW--------------------------
+            firebase.addFavorite("f_college_hall", 1, false)
+            firebase.addFavorite("f_hemmingson", 1, true)
+            //MOVE THIS TO SOMEWHERE ELSE
             showAddPinDialog(latLng)
         }
 
