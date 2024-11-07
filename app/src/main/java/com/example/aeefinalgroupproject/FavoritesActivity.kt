@@ -107,20 +107,7 @@ class FavoritesActivity : AppCompatActivity() {
 
         // set on Click listener for the remove favorite button
         removeFavoriteButton.setOnClickListener {
-            // pop up to ask if they are sure
-            val builder = AlertDialog.Builder(this)
-            val name = rowView.findViewById<TextView>(R.id.favorite_name).text
-            builder.setTitle("Remove Favorite")
-            builder.setMessage("Are you sure you want to remove $name from your favorites?")
-            builder.setPositiveButton("Confirm") { dialog: DialogInterface, _: Int ->
-                dialog.dismiss()
-                removeFaveRow(layoutName, rowView) // go ahead and remove it
-            }
-            builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
-                dialog.dismiss()
-            }
-            val alertDialog = builder.create()
-            alertDialog.show()
+            removeFaveRow(layoutName, rowView) // go ahead and remove it
         }
 
         // set on click listener for the notification bell
