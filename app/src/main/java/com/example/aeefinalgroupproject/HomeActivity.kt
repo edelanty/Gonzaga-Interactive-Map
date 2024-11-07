@@ -34,6 +34,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
+    private val firebase = Firebase()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
@@ -41,6 +43,11 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         // Set up the drawer layout (hamburger menu)
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuButton: ImageButton = findViewById(R.id.menu_button)
+
+        //HARDCODED FOR NOW, WE JUST ADD COLLEGE HALL HERE
+        firebase.addFavorite("f_college_hall", 1, false)
+        firebase.addFavorite("f_hemmingson", 1, true)
+        //MOVE THIS TO SOMEWHERE ELSE
 
         // Listen for drawer open/close
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)

@@ -12,6 +12,7 @@ import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.Nullable
 import androidx.appcompat.app.AppCompatActivity
 import org.w3c.dom.Text
 
@@ -29,7 +30,8 @@ class FavoritesActivity : AppCompatActivity() {
         setContentView(R.layout.activity_favorites)
 
         //HARDCODED FOR NOW, WE JUST ADD COLLEGE HALL HERE
-        firebase.addFavorite("f_college_hall", 1, false)
+        //firebase.addFavorite("f_college_hall", 1, false)
+        //firebase.addFavorite("f_hemmingson", 1, true)
         //MOVE THIS TO SOMEWHERE ELSE
 
         // initialize view for favorites container
@@ -113,10 +115,6 @@ class FavoritesActivity : AppCompatActivity() {
             builder.setPositiveButton("Confirm") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
                 removeFaveRow(layoutName, rowView) // go ahead and remove it
-
-                // clean up for memory optimization
-                rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)
-                rowView.findViewById<ImageButton>(R.id.notification_bell)?.setOnClickListener(null)
             }
             builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
                 dialog.dismiss()
@@ -147,8 +145,12 @@ class FavoritesActivity : AppCompatActivity() {
                 favoritesContainer.removeView(rowView)
                 Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
 
+                // clean up for memory optimization
+                rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)
+                rowView.findViewById<ImageButton>(R.id.notification_bell)?.setOnClickListener(null)
+
                 //reload faves without the view
-                loadFaves()
+                onCreate(null)
             } else {
                 Toast.makeText(this, "Failed to remove favorite", Toast.LENGTH_SHORT).show()
             }
@@ -156,59 +158,59 @@ class FavoritesActivity : AppCompatActivity() {
     }
 
 
-    // Remove Favorite confirmation method (cancel or confirm)
-    private fun showRemoveFavoriteConfirmation() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle("Remove Favorite")
-        builder.setMessage("Are you sure you want to remove from your favorites?")
-        builder.setPositiveButton("Confirm") { dialog: DialogInterface, _: Int ->
-            removeFavoriteItem()
-            dialog.dismiss()
-        }
-        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
-            dialog.dismiss()
-        }
-        val alertDialog = builder.create()
-        alertDialog.show()
-    }
+//    // Remove Favorite confirmation method (cancel or confirm)
+//    private fun showRemoveFavoriteConfirmation() {
+//        val builder = AlertDialog.Builder(this)
+//        builder.setTitle("Remove Favorite")
+//        builder.setMessage("Are you sure you want to remove from your favorites?")
+//        builder.setPositiveButton("Confirm") { dialog: DialogInterface, _: Int ->
+//            removeFavoriteItem()
+//            dialog.dismiss()
+//        }
+//        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
+//            dialog.dismiss()
+//        }
+//        val alertDialog = builder.create()
+//        alertDialog.show()
+//    }
 
-    // Check if the favorite was removed
-    private fun isFavoriteRemoved(): Boolean {
-        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
-        return sharedPref.getBoolean("college_hall_removed", false)
-    }
+//    // Check if the favorite was removed
+//    private fun isFavoriteRemoved(): Boolean {
+//        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+//        return sharedPref.getBoolean("college_hall_removed", false)
+//    }
 
-    // Remove favorite and store state
-    private fun removeFavoriteItem() {
-        favoriteRow.visibility = View.GONE
-        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
-        editor.putBoolean("college_hall_removed", true)
-        editor.apply()
-        Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
-    }
+//    // Remove favorite and store state   KEEP*******************
+//    private fun removeFavoriteItem() {
+//        favoriteRow.visibility = View.GONE
+//        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+//        val editor = sharedPref.edit()
+//        editor.putBoolean("college_hall_removed", true)
+//        editor.apply()
+//        Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
+//    } *******************************************************KEEP
 
-    // Toggle notifications on/off
-    private fun toggleNotifications(bell: ImageButton) {
-        notificationsEnabled = !notificationsEnabled
-        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
-        val editor = sharedPref.edit()
+//    // Toggle notifications on/off
+//    private fun toggleNotifications(bell: ImageButton) {
+//        notificationsEnabled = !notificationsEnabled
+//        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+//        val editor = sharedPref.edit()
+//
+//        if (notificationsEnabled) {
+//            bell.setImageResource(R.drawable.notifications_active)
+//            Toast.makeText(this, "Notifications enabled", Toast.LENGTH_SHORT).show()
+//            editor.putBoolean("college_hall_notifications", true)
+//        } else {
+//            bell.setImageResource(R.drawable.notifications_none)
+//            Toast.makeText(this, "Notifications disabled", Toast.LENGTH_SHORT).show()
+//            editor.putBoolean("college_hall_notifications", false)
+//        }
+//        editor.apply()
+//    }
 
-        if (notificationsEnabled) {
-            bell.setImageResource(R.drawable.notifications_active)
-            Toast.makeText(this, "Notifications enabled", Toast.LENGTH_SHORT).show()
-            editor.putBoolean("college_hall_notifications", true)
-        } else {
-            bell.setImageResource(R.drawable.notifications_none)
-            Toast.makeText(this, "Notifications disabled", Toast.LENGTH_SHORT).show()
-            editor.putBoolean("college_hall_notifications", false)
-        }
-        editor.apply()
-    }
-
-    // Check if notifications are enabled
-    private fun areNotificationsEnabled(): Boolean {
-        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
-        return sharedPref.getBoolean("college_hall_notifications", false)
-    }
+//    // Check if notifications are enabled
+//    private fun areNotificationsEnabled(): Boolean {
+//        val sharedPref = getSharedPreferences("favorites_prefs", Context.MODE_PRIVATE)
+//        return sharedPref.getBoolean("college_hall_notifications", false)
+//    }
 }

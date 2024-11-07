@@ -47,7 +47,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // See https://firebase.google.com/docs/android/setup#available-libraries
     // For example, add the dependencies for Firebase Authentication and Cloud Firestore
-    //implementation("com.google.firebase:firebase-auth")
+    implementation("com.google.firebase:firebase-auth")
     implementation("com.google.firebase:firebase-firestore")
 
     implementation(libs.androidx.core.ktx)
