@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:paddingTop="40dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -18,8 +20,7 @@
             android:layout_height="match_parent"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/back_to_home"
-            android:paddingEnd="7dp"
-            android:paddingBottom="8dp"
+            android:padding="20dp"
             android:src="@drawable/back_arrow"
             tools:ignore="RtlSymmetry" />
 
@@ -28,7 +29,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/location_name"
-            android:textSize="20sp"
+            android:textSize="35sp"
             android:textStyle="bold"
             android:paddingBottom="8dp"/>
 
