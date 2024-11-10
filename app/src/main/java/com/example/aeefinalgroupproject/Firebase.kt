@@ -6,6 +6,7 @@ import com.google.firebase.ktx.Firebase
 import android.util.Log
 import android.view.View
 import android.widget.ImageButton
+import android.widget.RatingBar
 
 class Firebase {
     // Initialize Firestore
@@ -66,7 +67,7 @@ class Firebase {
     }
     // retrieving a specific favorite (for testing)
     fun getFavorite(layoutName: String, onComplete: (Map<String, Any>?) -> Unit) {
-        db.collection("users").document(layoutName).get()
+        db.collection("favorites").document(layoutName).get()
             .addOnSuccessListener { document ->
                 if (document != null) {
                     Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
@@ -118,6 +119,67 @@ class Firebase {
     }
 
     // ---------Adding a pin--------------
+    fun addPin(pinName: String, pin: Map<String, Any>) {
+        db.collection("pins").document(pinName).set(pin)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Pin successfully written!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error writing document", e)
+            }
+    }
+    // retrieving a specific pin
+    fun getPin(pinName: String, onComplete: (Map<String, Any>?) -> Unit) {
+        db.collection("pins").document(pinName).get()
+            .addOnSuccessListener { document ->
+                if (document != null) {
+                    Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
+                    onComplete(document.data)  // Return the document data to the caller
+                } else {
+                    Log.d("Firebase", "No such document")
+                    onComplete(null)
+                }
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error getting document", e)
+                onComplete(null)
+            }
+    }
+    // Get all pins
+    fun getAllPins(onComplete: (List<Map<String, Any>>) -> Unit) {
+        db.collection("pins").get()
+            .addOnSuccessListener { result ->
+                val pinList = result.documents.mapNotNull { it.data }
+                onComplete(pinList)
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error getting all pins", e)
+                onComplete(emptyList())
+            }
+    }
+    // Update pins
+    fun updatePin(pinName: String, updates: Map<String, Any>) {
+        db.collection("pins").document(pinName)
+            .update(updates)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Pin successfully updated!")
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error updating document", e)
+            }
+    }
+    // Remove pin
+    fun removePin(pinName: String, onComplete: (Boolean) -> Unit) {
+        db.collection("pins").document(pinName).delete()
+            .addOnSuccessListener {
+                Log.d("Firebase", "Pin successfully deleted!")
+                onComplete(true) // Indicate success
+            }
+            .addOnFailureListener { e ->
+                Log.w("Firebase", "Error deleting document", e)
+                onComplete(false) // Indicate failure
+            }
+    }
 
 
 

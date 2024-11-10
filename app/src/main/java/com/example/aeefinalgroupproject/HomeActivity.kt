@@ -198,6 +198,50 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         // Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
+
+        // load pins type s
+        loadPins(mMap)
+    }
+
+    private fun loadPins(mMap: GoogleMap) {
+        // rn gonna add a bunch to the database
+//        val pinData = hashMapOf( // create a bunch of pins
+//            "latitude" to latLng.latitude,
+//            "longitude" to latLng.longitude,
+//            "locationName" to locationName,
+//            "description" to description,
+//            "rating" to rating,
+//        )
+//        firebase.addPin(locationName, pinData)
+
+        val pinData = hashMapOf( // example adding hemmingson
+            "latitude" to 47.66711,
+            "longitude" to -117.39908,
+            "locationName" to "Hemmingson",
+            "description" to "This building is known as the center of campus. It's " +
+                    "home to the dining hall (COG), and a central place " +
+                    "for students to study and hang out.",
+            "rating" to 0,
+        )
+        firebase.addPin("Hemmingson", pinData) // "Hemmingson" is the key in db
+
+
+        firebase.getAllPins { pinList ->
+            // Iterate through the list of pins and add them to the map
+            for (pinData in pinList) {
+                val latitude = pinData["latitude"] as? Double ?: continue
+                val longitude = pinData["longitude"] as? Double ?: continue
+                val locationName = pinData["locationName"] as? String ?: "Unknown"
+                val description = pinData["description"] as? String ?: ""
+
+                val latLng = LatLng(latitude, longitude)
+
+                // Add the pin to the map
+                mMap.addMarker(
+                    MarkerOptions().position(latLng).title(locationName).snippet(description)
+                )
+            }
+        }
     }
 
     private fun setupPinListeners(mMap: GoogleMap) {
