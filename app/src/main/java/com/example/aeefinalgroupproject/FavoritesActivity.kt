@@ -6,6 +6,7 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.media.Image
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
@@ -41,9 +42,13 @@ class FavoritesActivity : AppCompatActivity() {
 
     // load favorites from Firebase
     private fun loadFaves() {
+
         firebase.getAllFavorites { favoriteList ->
             favoriteList.forEach { favoriteData ->
-                addFavoriteRow(favoriteData)
+                val isActive = favoriteData["isActive"] as? Boolean ?: false
+                if (isActive) {
+                    addFavoriteRow(favoriteData)
+                }
             }
         }
     }
@@ -78,7 +83,13 @@ class FavoritesActivity : AppCompatActivity() {
                 if (notificationEnabled) R.drawable.notifications_active
                 else R.drawable.notifications_none)
             // set new value in database and this rows data
-            firebase.updateFavorite(layoutName, mapOf("bellStatus" to notificationEnabled))
+            firebase.updateFavorite(layoutName, mapOf("bellStatus" to notificationEnabled)) { success ->
+                if (success) {
+                    Log.d("firebase", "updated notifications")
+                } else {
+                    Log.d("firebase", "failed to update notifications")
+                }
+            }
         }
 
         // add row to container
@@ -96,7 +107,7 @@ class FavoritesActivity : AppCompatActivity() {
             // Remove row from the UI
             favoritesContainer.removeView(rowView)
             // Remove favorite from the database
-            firebase.removeFavorite(name) { success ->
+            firebase.updateFavorite(name, mapOf("isActive" to false)) { success ->
                 if (success) {
                     Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
                     rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)

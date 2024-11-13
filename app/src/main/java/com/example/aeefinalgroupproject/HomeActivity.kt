@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.MenuItem
 import android.widget.Button
 import android.widget.ImageButton
@@ -44,7 +45,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuButton: ImageButton = findViewById(R.id.menu_button)
 
-        //
+        // remove default_layout in case it got added
+//        firebase.removeFavorite("default_view") { success ->
+//            if (success) {
+//                Log.d("Firebase", "Favorite successfully removed.")
+//            } else {
+//                Log.e("Firebase", "Failed to remove favorite.")
+//            }
+//        }
 
         // Listen for drawer open/close
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
@@ -214,16 +222,46 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 //        )
 //        firebase.addPin(locationName, pinData)
 
-        val pinData = hashMapOf( // example adding hemmingson
+        val pinData1 = hashMapOf( // example adding college_hall
+            "xmlName" to "f_college_hall",
+            "latitude" to 47.66811,
+            "longitude" to -117.40255,
+            "locationName" to "College_Hall",
+            "description" to "This building is the main building for classrooms " +
+                    "and classes. Many core classes are held here and important " +
+                    "offices like Office of the Registrar, etc.",
+            "rating" to 0
+        )
+        firebase.addPin("College_Hall", pinData1)
+        val latLnggg = LatLng(47.66811, -117.40255)
+        val descriptionn = "This building is the main building for classrooms " +
+                "and classes. Many core classes are held here and important " +
+                "offices like Office of the Registrar, etc.";
+
+        // Add the pin to the map
+        mMap.addMarker(
+            MarkerOptions().position(latLnggg).title("College_Hall").snippet(descriptionn)
+        )
+        val pinData = hashMapOf( // example adding hemm
+            "xmlName" to "f_hemmingson",
             "latitude" to 47.66711,
-            "longitude" to -117.39908,
+            "longitude" to -117.39914,
             "locationName" to "Hemmingson",
-            "description" to "This building is known as the center of campus. It's " +
-                    "home to the dining hall (COG), and a central place " +
-                    "for students to study and hang out.",
-            "rating" to 0,
+            "description" to "This building is the center of campus activity. It " +
+                    "holds the dining hall (COG), many office rooms, and is a great" +
+                    " place for students to hang out and study.",
+            "rating" to 0
         )
         firebase.addPin("Hemmingson", pinData) // "Hemmingson" is the key in db
+        val latLngg = LatLng(47.66711, -117.39914)
+        val descriptionnn = "This building is the center of campus activity. It " +
+                "holds the dining hall (COG), many office rooms, and is a great" +
+                " place for students to hang out and study.";
+
+        // Add the pin to the map
+        mMap.addMarker(
+            MarkerOptions().position(latLngg).title("Hemmingson").snippet(descriptionnn)
+        )
 
 
         firebase.getAllPins { pinList ->
@@ -248,8 +286,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         //Long Press to add a pin
         mMap.setOnMapLongClickListener { latLng ->
             //HARDCODED FOR NOW--------------------------
-            firebase.addFavorite("f_college_hall", 1, false)
-            firebase.addFavorite("f_hemmingson", 1, true)
+            //firebase.addFavorite("f_college_hall", 1, false)
+            //firebase.addFavorite("f_hemmingson", 1, true)
             //MOVE THIS TO SOMEWHERE ELSE
             showAddPinDialog(latLng)
         }

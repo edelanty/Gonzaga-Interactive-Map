@@ -12,6 +12,22 @@ class Firebase {
     // Initialize Firestore
     private val db: FirebaseFirestore = Firebase.firestore
 
+//    data class Favorite(  maybe have these as classes
+//        val layoutName: String,
+//        val icon: Int? = null,
+//        val bellStatus: Boolean,
+//        val isActive: Boolean = false
+//    )
+//
+//    data class Pin(
+//        val xmlName: String,
+//        val latitude: Double,
+//        val longitude: Double,
+//        val locationName: String,
+//        val description: String,
+//        val rating: Int
+//    )
+
     // Method to add a user to Firestore
     fun addUser(userId: String, name: String, age: Int) {
         // Data to add **NOTE: change later to suit needs
@@ -54,7 +70,8 @@ class Firebase {
         val favorite = hashMapOf(
             "layoutName" to layoutName,
             "icon" to iconId,
-            "bellStatus" to notificationBell
+            "bellStatus" to notificationBell,
+            "isActive" to false
         )
 
         db.collection("favorites").document(layoutName).set(favorite)
@@ -69,7 +86,7 @@ class Firebase {
     fun getFavorite(layoutName: String, onComplete: (Map<String, Any>?) -> Unit) {
         db.collection("favorites").document(layoutName).get()
             .addOnSuccessListener { document ->
-                if (document != null) {
+                if (document.exists()) {
                     Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
                     onComplete(document.data)  // Return the document data to the caller
                 } else {
@@ -95,14 +112,16 @@ class Firebase {
             }
     }
     // Update favorites
-    fun updateFavorite(layoutName: String, updates: Map<String, Any>) {
+    fun updateFavorite(layoutName: String, updates: Map<String, Any>, onComplete: (Boolean) -> Unit) {
         db.collection("favorites").document(layoutName)
             .update(updates)
             .addOnSuccessListener {
                 Log.d("Firebase", "Favorite successfully updated!")
+                onComplete(true)
             }
             .addOnFailureListener { e ->
                 Log.w("Firebase", "Error updating document", e)
+                onComplete(false)
             }
     }
     // Remove favorite
@@ -132,7 +151,7 @@ class Firebase {
     fun getPin(pinName: String, onComplete: (Map<String, Any>?) -> Unit) {
         db.collection("pins").document(pinName).get()
             .addOnSuccessListener { document ->
-                if (document != null) {
+                if (document.exists()) {
                     Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
                     onComplete(document.data)  // Return the document data to the caller
                 } else {
@@ -204,10 +223,10 @@ class Firebase {
         }
 
         // Add a Favorite
-        firebaseHelper.addFavorite("f_college_hall",1, false)
+        //firebaseHelper.addFavorite("College_Hall","f_college_hall",1, false) never run this please
 
         // retrieve the specific favorite
-        getFavorite("f_college_hall") { favoriteData ->
+        getFavorite("College_Hall") { favoriteData ->
             if (favoriteData != null) {
                 val iconResource = favoriteData["iconResource"] as? Int
                 val notificationEnabled = favoriteData["notificationEnabled"] as? Boolean
