@@ -42,6 +42,15 @@ class FavoritesActivity : AppCompatActivity() {
 
     // load favorites from Firebase
     private fun loadFaves() {
+        // Hardcoded favoriteData
+        val hardcodedFavoriteData = mapOf(
+            "layoutName" to "f_college_hall",  // Matches the XML layout name/key
+            "bellStatus" to false,             // Notification bell status
+            "isActive" to true                 // Only active favorites are added
+        )
+
+        // Add the hardcoded favorite row
+        addFavoriteRow(hardcodedFavoriteData)
 
         firebase.getAllFavorites { favoriteList ->
             favoriteList.forEach { favoriteData ->
