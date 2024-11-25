@@ -37,11 +37,21 @@ class FavoritesActivity : AppCompatActivity() {
         }
 
         //Load up Favorites
-        loadFaves()
+        loadFavorites()
     }
-
+    private fun loadFavorites() {
+        firebase.getAllFavorites { favoriteList ->
+            favoriteList.forEach { favoriteData ->
+                val isActive = favoriteData["isActive"] as? Boolean ?: false
+                if (isActive) {
+                    addFavoriteRow(favoriteData)
+                }
+            }
+        }
+    }
     // load favorites from Firebase
     private fun loadFaves() {
+
         // Hardcoded favoriteData
         val hardcodedFavoriteData = mapOf(
             "layoutName" to "f_college_hall",  // Matches the XML layout name/key
@@ -101,6 +111,16 @@ class FavoritesActivity : AppCompatActivity() {
             }
         }
 
+        if (!notificationEnabled) {
+            firebase.updateFavorite(layoutName, mapOf("isActive" to true, "bellStatus" to false)) {success ->
+                if (success) {
+                    Log.d("firebase", "updated notifications")
+                } else {
+                    Log.d("firebase", "failed to update notifications")
+                }
+            }
+        }
+
         // add row to container
         favoritesContainer.addView(rowView)
     }
@@ -116,7 +136,7 @@ class FavoritesActivity : AppCompatActivity() {
             // Remove row from the UI
             favoritesContainer.removeView(rowView)
             // Remove favorite from the database
-            firebase.updateFavorite(name, mapOf("isActive" to false)) { success ->
+            firebase.updateFavorite(name, mapOf("isActive" to false, "bellStatus" to false)) { success ->
                 if (success) {
                     Toast.makeText(this, "Favorite removed", Toast.LENGTH_SHORT).show()
                     rowView.findViewById<ImageButton>(R.id.remove_favorite)?.setOnClickListener(null)

@@ -59,20 +59,26 @@ class CommentRatingActivity : AppCompatActivity() {
         firebase.getPin(locationName) { data ->
             progressBar.visibility = View.GONE
 
-            // set global variable to value of xmlName
-            xmlName = data?.get("xmlName") as? String ?: "default_view"
+            if (data != null) {
+                // Retrieve `xmlName` for the pin
+                xmlName = data["xmlName"] as? String ?: "default_view"
 
-            firebase.getFavorite(xmlName) { data ->
-                if (data == null) {
-                    // add pin to the favorites database if it doesn't exist
-                    firebase.addFavorite(xmlName, 1, false)
-                    // false because it's new, so it can't be a favorite yet
-                    isFavorited = false
-                } else {
-                    isFavorited = data["isActive"] as? Boolean ?: false
+                // Check if the pin is favorited
+                firebase.getFavorite(xmlName) { favoriteData ->
+                    if (favoriteData == null) {
+                        // If no favorite data exists, create a new favorite entry
+                        firebase.addFavorite(xmlName, 1, false)
+                        isFavorited = false // New entry is not active
+                    } else {
+                        // Set `isFavorited` based on the database value
+                        isFavorited = favoriteData["isActive"] as? Boolean ?: false
+                    }
+                    // Now that `isFavorited` is updated, set the favorite button
+                    setFavoriteButton()
                 }
+            } else {
+                Log.e("Firebase", "Failed to retrieve pin data for $locationName")
             }
-            setFavoriteButton()
         }
     }
 

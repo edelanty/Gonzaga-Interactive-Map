@@ -43,6 +43,10 @@ android {
 
 dependencies {
 
+    implementation("com.firebaseui:firebase-ui-auth:7.2.0")
+
+    // Required only if Facebook login support is required
+    // Find the latest Facebook SDK releases here: https://goo.gl/Ce5L94
     implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
     implementation("com.google.firebase:firebase-analytics")
     // See https://firebase.google.com/docs/android/setup#available-libraries

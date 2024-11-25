@@ -11,9 +11,7 @@ import android.widget.ImageButton
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.RatingBar
-import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -25,6 +23,9 @@ import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.material.navigation.NavigationView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -36,10 +37,18 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
 
     private val firebase = Firebase()
+    private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        // Login
+        // Initialize Firebase Auth
+        auth = FirebaseAuth.getInstance()
+
+        // Ensure only logged-in users can access this activity
+        checkUser()
 
         // Set up the drawer layout (hamburger menu)
         drawerLayout = findViewById(R.id.drawer_layout)
@@ -101,6 +110,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         zoomOutButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomOut())
         }
+//        firebase.testFirestore()
+//        firebase.testAddPin()
     }
 
     // Navigation menu options
@@ -113,7 +124,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             R.id.nav_settings -> {
                 return true
             }
-            R.id.nav_login -> {
+            R.id.nav_logout -> {
+                auth.signOut()
+                navigateToLogin()
                 return true
             }
         }
@@ -286,8 +299,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         //Long Press to add a pin
         mMap.setOnMapLongClickListener { latLng ->
             //HARDCODED FOR NOW--------------------------
-            //firebase.addFavorite("f_college_hall", 1, false)
-            //firebase.addFavorite("f_hemmingson", 1, true)
+            //firebase.addUserFavorites("f_college_hall", 1, false)
+            //firebase.addUserFavorites("f_hemmingson", 1, true)
             //MOVE THIS TO SOMEWHERE ELSE
             showAddPinDialog(latLng)
         }
@@ -383,5 +396,22 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         //Limits zooming
         mMap.setMinZoomPreference(15f)
         mMap.setMaxZoomPreference(19f)
+    }
+
+    // LOGIN FUNCTIONS
+    private fun checkUser() {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.d("FirebaseAuth", "No user logged in, redirecting to login")
+            navigateToLogin()
+        } else {
+            Log.d("FirebaseAuth", "Welcome ${currentUser.email}")
+        }
+    }
+
+    private fun navigateToLogin() {
+        val intent = Intent(this, EmailPasswordActivity::class.java)
+        startActivity(intent)
+        finish()
     }
 }
