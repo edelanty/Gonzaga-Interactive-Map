@@ -39,6 +39,7 @@ class FavoritesActivity : AppCompatActivity() {
         //Load up Favorites
         loadFavorites()
     }
+
     private fun loadFavorites() {
         firebase.getAllFavorites { favoriteList ->
             favoriteList.forEach { favoriteData ->
@@ -49,28 +50,7 @@ class FavoritesActivity : AppCompatActivity() {
             }
         }
     }
-    // load favorites from Firebase
-    private fun loadFaves() {
 
-        // Hardcoded favoriteData
-        val hardcodedFavoriteData = mapOf(
-            "layoutName" to "f_college_hall",  // Matches the XML layout name/key
-            "bellStatus" to false,             // Notification bell status
-            "isActive" to true                 // Only active favorites are added
-        )
-
-        // Add the hardcoded favorite row
-        addFavoriteRow(hardcodedFavoriteData)
-
-        firebase.getAllFavorites { favoriteList ->
-            favoriteList.forEach { favoriteData ->
-                val isActive = favoriteData["isActive"] as? Boolean ?: false
-                if (isActive) {
-                    addFavoriteRow(favoriteData)
-                }
-            }
-        }
-    }
     // add Favorite row
     private fun addFavoriteRow(favoriteData: Map<String, Any>) {
         // get name of xml layout file to open (also doubles as key for row)
