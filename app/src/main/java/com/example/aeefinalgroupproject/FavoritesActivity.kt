@@ -53,22 +53,35 @@ class FavoritesActivity : AppCompatActivity() {
 
     //Handle the logic for removing a favorite
     private fun removeFavorite(favoriteName: String) {
-        firebase.updateFavorite(favoriteName, mapOf("isFavorite" to false)) { success ->
-            if (success) {
-                Toast.makeText(this, "$favoriteName removed", Toast.LENGTH_SHORT).show()
-                //Refresh list
-                loadFavorites()
-            } else {
-                Toast.makeText(this, "Failed to remove $favoriteName", Toast.LENGTH_SHORT).show()
+        val dialogBuilder = android.app.AlertDialog.Builder(this)
+        dialogBuilder.setTitle("Remove Favorite")
+            .setMessage("Are you sure you want to remove $favoriteName from Favorites?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                firebase.updateFavorite(favoriteName, mapOf("isFavorite" to false)) { success ->
+                    if (success) {
+                        Toast.makeText(this, "$favoriteName removed", Toast.LENGTH_SHORT).show()
+                        loadFavorites()
+                    } else {
+                        Toast.makeText(this, "Failed to remove $favoriteName", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                dialog.dismiss()
             }
-        }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+            }
+
+        //Show dialog
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
     }
 
-    //Handle toggling the notification (bellStatus)
+    //Handle toggling the notification
     private fun toggleNotification(favoriteName: String, isFavorite: Boolean) {
         firebase.updateFavorite(favoriteName, mapOf("bellStatus" to isFavorite)) { success ->
             if (success) {
                 Log.d("FavoritesActivity", "Notification status updated for $favoriteName")
+                loadFavorites()
             } else {
                 Log.e("FavoritesActivity", "Failed to update notification for $favoriteName")
             }

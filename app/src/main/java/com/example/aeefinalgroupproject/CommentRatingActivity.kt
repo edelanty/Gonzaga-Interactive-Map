@@ -8,6 +8,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 
 class CommentRatingActivity : AppCompatActivity() {
     private var isFavorited = false
@@ -37,6 +38,7 @@ class CommentRatingActivity : AppCompatActivity() {
         favoriteButton = findViewById(R.id.favorite_button)
         backButton = findViewById(R.id.back_button)
 
+        checkFavoriteStatus(locationName)
         updateView(locationName)
 
         backButton.setOnClickListener {
@@ -48,30 +50,36 @@ class CommentRatingActivity : AppCompatActivity() {
         }
     }
 
+    private fun checkFavoriteStatus(locationName: String) {
+        firebase.isFavorite(locationName) { isFavorite ->
+            isFavorited = isFavorite
+
+            //Change icon depending on query
+            val icon = if (isFavorited) R.drawable.heart_filled else R.drawable.favorites_heart
+            favoriteButton.setImageResource(icon)
+        }
+    }
+
     private fun onFavoriteButtonClicked(locationName: String) {
         //Toggle the favorite status
-        val isFavorite = !isFavorited
+        val newFavoriteStatus = !isFavorited
         val bellStatus = false
 
-        //Call the method to update Firestore
-        firebase.updateFavoriteStatus(locationName, isFavorite, bellStatus)
-
-        //Update the UI based on new favorite status
-        isFavorited = isFavorite
-        updateFavoriteButtonUI()
+        firebase.updateFavoriteStatus(locationName, newFavoriteStatus, bellStatus) { success ->
+            if (success) {
+                isFavorited = newFavoriteStatus
+                updateFavoriteButtonUI()
+            } else {
+                Toast.makeText(this, "ERROR", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
 
     //Method to update the favorite button icon in the UI
     private fun updateFavoriteButtonUI() {
         val icon = if (isFavorited) R.drawable.heart_filled else R.drawable.favorites_heart
         favoriteButton.setImageResource(icon)
-
-        //Toast message
-        Toast.makeText(
-            this,
-            if (isFavorited) "Added to favorites" else "Removed from favorites",
-            Toast.LENGTH_SHORT
-        ).show()
+        Toast.makeText(this, if (isFavorited) "Added to favorites" else "Removed from favorites", Toast.LENGTH_SHORT).show()
     }
 
     //Updates the information shown on the view for a clicked on pin
@@ -85,6 +93,7 @@ class CommentRatingActivity : AppCompatActivity() {
 
                 //Just get the name from the email
                 userName = userName?.substringBefore("@")
+                userName = userName?.replaceFirstChar { it.uppercaseChar() }
 
                 //Update the view with the retrieved data
                 userNameTextView.text = "$userName left this pin!"

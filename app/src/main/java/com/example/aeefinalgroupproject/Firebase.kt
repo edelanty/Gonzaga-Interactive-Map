@@ -33,7 +33,7 @@ class Firebase {
     }
 
     //Initially used to add a favorite
-    fun updateFavoriteStatus(locationName: String, isFavorite: Boolean, bellStatus: Boolean) {
+    fun updateFavoriteStatus(locationName: String, isFavorite: Boolean, bellStatus: Boolean, callback: (Boolean) -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             val favoriteData = hashMapOf(
@@ -45,12 +45,34 @@ class Firebase {
             db.collection("users").document(userId).collection("favorites").document(locationName).set(favoriteData)
                 .addOnSuccessListener {
                     Log.d("Firebase", "Favorite status updated for $locationName")
+                    callback(true)
                 }
                 .addOnFailureListener { e ->
                     Log.e("Firebase", "Error updating favorite status for $locationName", e)
+                    callback(false)
                 }
         } else {
             Log.e("Firebase", "User not logged in")
+        }
+    }
+
+    fun isFavorite(locationName: String, callback: (Boolean) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            val favoriteRef = db.collection("users").document(userId).collection("favorites").document(locationName)
+
+            favoriteRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        callback(document.getBoolean("isFavorite") ?: false)
+                    } else {
+                        callback(false) // Default to not favorited if document doesn't exist
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firebase", "Failed to check favorite status", exception)
+                    callback(false) // Default to false on failure
+                }
         }
     }
 

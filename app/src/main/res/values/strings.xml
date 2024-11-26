@@ -34,4 +34,8 @@
     <string name="add_to_favorites">Add To Favorites</string>
     <string name="favorite">Favorite</string>
     <string name="logout">Logout</string>
+    <string name="who_left_this_pin">Who Left This Pin</string>
+    <string name="classroom">Classroom</string>
+    <string name="study_spot">Study Spot</string>
+    <string name="what_is_this_place">What is this place?</string>
 </resources>
