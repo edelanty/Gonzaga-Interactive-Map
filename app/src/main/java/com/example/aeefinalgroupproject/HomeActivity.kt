@@ -261,6 +261,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val locationNameInput = dialogView.findViewById<EditText>(R.id.pin_name_input)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.pin_description_input)
         val ratingBar = dialogView.findViewById<RatingBar>(R.id.pin_rating_bar)
+        val foodCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_food)
+        val studySpotCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_study_spot)
+        val classroomCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_classroom)
 
         if (!markerIsInValidRange(latLng)) {
             Toast.makeText(this, "Invalid Pin", Toast.LENGTH_LONG).show()
@@ -268,10 +271,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
 
         dialogBuilder.setPositiveButton("Add Pin") { _, _ ->
-            //All need to be stored somewhere i.e. a database or if we just go local for time
             val locationName = locationNameInput.text.toString()
             val description = descriptionInput.text.toString()
             val rating = ratingBar.rating
+            val foodFilter = foodCheckBox.isChecked
+            val studySpotFilter = studySpotCheckBox.isChecked
+            val classroomFilter = classroomCheckBox.isChecked
 
             //Checking for empty attributes
             if (locationName.isBlank() || description.isBlank()) {
@@ -296,7 +301,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 "description" to description,
                 "rating" to rating,
                 "userId" to userIdString,
-                "userName" to userName
+                "userName" to userName,
+                "isFoodCheck" to foodFilter,
+                "isStudySpot" to studySpotFilter,
+                "isClassroom" to classroomFilter
             )
 
             //Saving pin data to the database

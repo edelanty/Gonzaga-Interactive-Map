@@ -32,6 +32,10 @@ class Firebase {
         }
     }
 
+    fun getCurrentUserId(): String {
+        return auth.currentUser?.uid!!
+    }
+
     //Initially used to add a favorite
     fun updateFavoriteStatus(locationName: String, isFavorite: Boolean, bellStatus: Boolean, callback: (Boolean) -> Unit) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
@@ -165,6 +169,7 @@ class Firebase {
             }
     }
 
+    //Removes pin from the database
     fun removePin(pinName: String, onComplete: (Boolean) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -175,19 +180,14 @@ class Firebase {
             return
         }
 
-        //TODO logic for deletion
-//        if (userId != db.collection(PINS_COLLECTION).document().get("userId").toString()) {
-//
-//        }
-
         db.collection(PINS_COLLECTION).document(pinName).delete()
             .addOnSuccessListener {
                 Log.d("Firebase", "Pin successfully deleted!")
-                onComplete(true) // Indicate success
+                onComplete(true)
             }
             .addOnFailureListener { e ->
                 Log.w("Firebase", "Error deleting document", e)
-                onComplete(false) // Indicate failure
+                onComplete(false)
             }
     }
 }
