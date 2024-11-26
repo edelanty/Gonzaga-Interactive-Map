@@ -13,43 +13,64 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import org.w3c.dom.Text
 
 class CommentRatingActivity : AppCompatActivity() {
-    private var isFavorited = false // will set in onCreate
+    private var isFavorited = false
     private val firebase = Firebase()
-    private var xmlName = "" // will set in onCreate
+    private var xmlName = ""
 
-    @SuppressLint("MissingInflatedId")
+    //For view changes
+    private lateinit var locationNameTextView: TextView
+    private lateinit var descriptionTextView: TextView
+    private lateinit var ratingTextView: TextView
+    private lateinit var locationImageView: ImageView
+    private lateinit var userNameTextView: TextView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment_rating)
 
-        //Pin data from intent
-        // will add pin id so you can get this from database
-        val locationName = intent.getStringExtra("locationName") ?: "unknown"
-        val description = intent.getStringExtra("description")
-        val rating = intent.getStringExtra("rating")
+        //Location name from Intent to use to query the pin from database
+        val locationName = intent.getStringExtra("locationName")!!
 
+        locationNameTextView = findViewById(R.id.locationNameTextView)
+        descriptionTextView = findViewById(R.id.descriptionTextView)
+        ratingTextView = findViewById(R.id.ratingTextView)
+        locationImageView = findViewById(R.id.locationImageView)
+        userNameTextView = findViewById(R.id.userNameTextView)
 
-        //Setting the data
-        val locationNameTextView = findViewById<TextView>(R.id.locationNameTextView)
-        val descriptionTextView = findViewById<TextView>(R.id.descriptionTextView)
-        val ratingTextView = findViewById<TextView>(R.id.ratingTextView)
-        val locationImageView = findViewById<ImageView>(R.id.locationImageView)
-
-
-        //TODO instead of using these locally found ones through the intent just query the database
-        locationNameTextView.text = locationName
-        descriptionTextView.text = description
-        ratingTextView.text = "Rating: $rating"
+        updateView(locationName)
 
         val backButton: ImageButton = findViewById(R.id.back_button)
         backButton.setOnClickListener {
             finish()
         }
 
-
         setDB(locationName)
+    }
+
+    //Updates the information shown on the view for a clicked on pin
+    @SuppressLint("SetTextI18n")
+    private fun updateView(locationName: String) {
+        firebase.getPin(locationName) { pinData ->
+            if (pinData != null) {
+                val description = pinData["description"] as? String
+                val rating = pinData["rating"] as? Double ?: 0.0
+                var userName = pinData["userName"] as? String
+
+                //Just get the name from the email
+                userName = userName?.substringBefore("@")
+
+                //Update the view with the retrieved data
+                userNameTextView.text = "$userName left this pin!"
+                locationNameTextView.text = locationName
+                descriptionTextView.text = description
+                ratingTextView.text = "Rating: $rating"
+            } else {
+                Log.e("Firebase", "Failed to fetch pin data")
+            }
+        }
     }
 
     private fun setDB(locationName: String) {
@@ -90,7 +111,6 @@ class CommentRatingActivity : AppCompatActivity() {
         val icon = if (isFavorited) R.drawable.heart_filled else R.drawable.favorites_heart
         favoriteButton.setImageResource(icon)
 
-
         // set onClick Listener
         favoriteButton.setOnClickListener {
             isFavorited = !isFavorited
@@ -112,7 +132,5 @@ class CommentRatingActivity : AppCompatActivity() {
             }
         }
     }
-        //TODO setup images properly
-        //TODO literally everything else on this screen
-
+    //TODO setup images properly, allow for deletions by a user with the same UID on a pin, and comments/upvote
 }
