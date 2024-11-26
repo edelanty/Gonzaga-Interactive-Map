@@ -11,6 +11,7 @@ import android.widget.ImageButton
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.RatingBar
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -35,6 +36,8 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private var isClassroomsChecked = false
     private lateinit var drawerLayout: DrawerLayout
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
+    private lateinit var navigationHeaderUserName: TextView
+    private lateinit var navigationView: NavigationView
 
     private val firebase = Firebase()
     private lateinit var auth: FirebaseAuth
@@ -68,8 +71,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         // Navigation view item selection listener
-        val navigationView: NavigationView = findViewById(R.id.navigation_view)
+        navigationView = findViewById(R.id.navigation_view)
         navigationView.setNavigationItemSelectedListener(this)
+
+        displayUserNameOnNavigation()
 
         // Load filter states
         loadFilterStates()
@@ -101,6 +106,22 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         zoomOutButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomOut())
         }
+    }
+
+    //Displays the logged in users name on the navigation bar
+    private fun displayUserNameOnNavigation() {
+        val headerView = navigationView.getHeaderView(0)
+
+        //Find the TextView within the header layout
+        navigationHeaderUserName = headerView.findViewById(R.id.user_name_header)
+
+        var userName = auth.currentUser?.email
+
+        //Just get the name from the email
+        userName = userName?.substringBefore("@")
+        userName = userName?.replaceFirstChar { it.uppercaseChar() }
+
+        navigationHeaderUserName.text = userName
     }
 
     // Navigation menu options
