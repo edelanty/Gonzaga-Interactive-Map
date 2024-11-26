@@ -54,15 +54,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         drawerLayout = findViewById(R.id.drawer_layout)
         val menuButton: ImageButton = findViewById(R.id.menu_button)
 
-        // remove default_layout in case it got added
-//        firebase.removeFavorite("default_view") { success ->
-//            if (success) {
-//                Log.d("Firebase", "Favorite successfully removed.")
-//            } else {
-//                Log.e("Firebase", "Failed to remove favorite.")
-//            }
-//        }
-
         // Listen for drawer open/close
         actionBarDrawerToggle = ActionBarDrawerToggle(this, drawerLayout, R.string.open, R.string.close)
         drawerLayout.addDrawerListener(actionBarDrawerToggle)
@@ -110,8 +101,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         zoomOutButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomOut())
         }
-//        firebase.testFirestore()
-//        firebase.testAddPin()
     }
 
     // Navigation menu options
@@ -214,71 +203,25 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         drawRestrictedShape(mMap)
         setupPinListeners(mMap)
 
-        // Add a marker at Gonzaga and move the camera
+        //Add a marker at Gonzaga and move the camera
         val gonzaga = LatLng(47.667191, -117.402382)
 
-        // Zoom in on location
+        //Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
 
-        // load pins type s
+        //load pins type s
         loadPins(mMap)
     }
 
     private fun loadPins(mMap: GoogleMap) {
-        // rn gonna add a bunch to the database
-//        val pinData = hashMapOf( // create a bunch of pins
-//            "latitude" to latLng.latitude,
-//            "longitude" to latLng.longitude,
-//            "locationName" to locationName,
-//            "description" to description,
-//            "rating" to rating,
-//        )
-//        firebase.addPin(locationName, pinData)
+        firebase.getGlobalPins { pinList ->
+            //Check if the pin list is empty
+            if (pinList.isEmpty()) {
+                Log.d("LoadPins", "No global pins found.")
+                return@getGlobalPins
+            }
 
-        val pinData1 = hashMapOf( // example adding college_hall
-            "xmlName" to "f_college_hall",
-            "latitude" to 47.66811,
-            "longitude" to -117.40255,
-            "locationName" to "College_Hall",
-            "description" to "This building is the main building for classrooms " +
-                    "and classes. Many core classes are held here and important " +
-                    "offices like Office of the Registrar, etc.",
-            "rating" to 0
-        )
-        firebase.addPin("College_Hall", pinData1)
-        val latLnggg = LatLng(47.66811, -117.40255)
-        val descriptionn = "This building is the main building for classrooms " +
-                "and classes. Many core classes are held here and important " +
-                "offices like Office of the Registrar, etc.";
-
-        // Add the pin to the map
-        mMap.addMarker(
-            MarkerOptions().position(latLnggg).title("College_Hall").snippet(descriptionn)
-        )
-        val pinData = hashMapOf( // example adding hemm
-            "xmlName" to "f_hemmingson",
-            "latitude" to 47.66711,
-            "longitude" to -117.39914,
-            "locationName" to "Hemmingson",
-            "description" to "This building is the center of campus activity. It " +
-                    "holds the dining hall (COG), many office rooms, and is a great" +
-                    " place for students to hang out and study.",
-            "rating" to 0
-        )
-        firebase.addPin("Hemmingson", pinData) // "Hemmingson" is the key in db
-        val latLngg = LatLng(47.66711, -117.39914)
-        val descriptionnn = "This building is the center of campus activity. It " +
-                "holds the dining hall (COG), many office rooms, and is a great" +
-                " place for students to hang out and study.";
-
-        // Add the pin to the map
-        mMap.addMarker(
-            MarkerOptions().position(latLngg).title("Hemmingson").snippet(descriptionnn)
-        )
-
-
-        firebase.getAllPins { pinList ->
-            // Iterate through the list of pins and add them to the map
+            //Iterate through the list of global pins and add them to the map
             for (pinData in pinList) {
                 val latitude = pinData["latitude"] as? Double ?: continue
                 val longitude = pinData["longitude"] as? Double ?: continue
@@ -287,7 +230,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
                 val latLng = LatLng(latitude, longitude)
 
-                // Add the pin to the map
+                //Add the pin to the map
                 mMap.addMarker(
                     MarkerOptions().position(latLng).title(locationName).snippet(description)
                 )
@@ -298,10 +241,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private fun setupPinListeners(mMap: GoogleMap) {
         //Long Press to add a pin
         mMap.setOnMapLongClickListener { latLng ->
-            //HARDCODED FOR NOW--------------------------
-            //firebase.addUserFavorites("f_college_hall", 1, false)
-            //firebase.addUserFavorites("f_hemmingson", 1, true)
-            //MOVE THIS TO SOMEWHERE ELSE
             showAddPinDialog(latLng)
         }
 
@@ -309,8 +248,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         mMap.setOnMarkerClickListener { marker ->
             val intent = Intent(this, CommentRatingActivity::class.java)
             intent.putExtra("locationName", marker.title)
-            intent.putExtra("description", marker.snippet)
-            intent.putExtra("rating", "?")
             startActivity(intent)
             true
         }
@@ -324,6 +261,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val locationNameInput = dialogView.findViewById<EditText>(R.id.pin_name_input)
         val descriptionInput = dialogView.findViewById<EditText>(R.id.pin_description_input)
         val ratingBar = dialogView.findViewById<RatingBar>(R.id.pin_rating_bar)
+        val foodCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_food)
+        val studySpotCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_study_spot)
+        val classroomCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_classroom)
 
         if (!markerIsInValidRange(latLng)) {
             Toast.makeText(this, "Invalid Pin", Toast.LENGTH_LONG).show()
@@ -331,10 +271,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
 
         dialogBuilder.setPositiveButton("Add Pin") { _, _ ->
-            //All need to be stored somewhere i.e. a database or if we just go local for time
             val locationName = locationNameInput.text.toString()
             val description = descriptionInput.text.toString()
             val rating = ratingBar.rating
+            val foodFilter = foodCheckBox.isChecked
+            val studySpotFilter = studySpotCheckBox.isChecked
+            val classroomFilter = classroomCheckBox.isChecked
 
             //Checking for empty attributes
             if (locationName.isBlank() || description.isBlank()) {
@@ -342,12 +284,33 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 return@setPositiveButton
             }
 
+            //Adding marker to the map
             mMap.addMarker(
                 MarkerOptions().position(latLng).title(locationName).snippet(description)
             )
 
-            //TODO Send pin data to eventual database
+            //Getting the UID for later logic (deletion)
+            val userIdString = auth.currentUser?.uid.toString()
+            val userName = auth.currentUser?.email.toString()
+
+            //Creating a hash map of all the related pin data to send to firebase
+            val pinData = hashMapOf(
+                "latitude" to latLng.latitude,
+                "longitude" to latLng.longitude,
+                "locationName" to locationName,
+                "description" to description,
+                "rating" to rating,
+                "userId" to userIdString,
+                "userName" to userName,
+                "isFoodCheck" to foodFilter,
+                "isStudySpot" to studySpotFilter,
+                "isClassroom" to classroomFilter
+            )
+
+            //Saving pin data to the database
+            firebase.addGlobalPin(locationName, pinData)
         }
+
         dialogBuilder.setNegativeButton("Cancel", null)
         dialogBuilder.create().show()
     }

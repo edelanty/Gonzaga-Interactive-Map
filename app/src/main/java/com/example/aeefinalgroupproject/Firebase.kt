@@ -4,202 +4,82 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Log
-import android.view.View
-import android.widget.ImageButton
-import android.widget.RatingBar
 import com.google.firebase.auth.FirebaseAuth
 
+private const val PINS_COLLECTION = "pins"
+
 class Firebase {
-    // Initialize Firestore
+    //Initialize Firestore
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    fun testAddPin() {
-        val pinData = mapOf(
-            "xmlName" to "test_pin",
-            "latitude" to 47.6666,
-            "longitude" to -117.3999,
-            "locationName" to "Test Location",
-            "description" to "This is a test description.",
-            "rating" to 5
-        )
-        addPin("TestPin", pinData)
-    }
-
-    fun testFirestore() {
-        db.collection("testCollection").document("testDocument")
-            .set(mapOf("testField" to "Hello Firestore"))
-            .addOnSuccessListener {
-                Log.d("FirebaseTest", "Test write succeeded!")
-            }
-            .addOnFailureListener { e ->
-                Log.e("FirebaseTest", "Test write failed: ${e.message}")
-            }
-    }
-
-    // Method to add user favorites
-    fun addUserFavorites(layoutName: String, iconId: Int, notificationBell: Boolean) {
-        val userId = auth.currentUser?.uid
+    //Method to update a favorite used for deletion and setting notifications
+    fun updateFavorite(locationName: String, updates: Map<String, Any>, callback: (Boolean) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
-            Log.d("Firebase", "addUserFavorites: user id success")
-        } else {
-            Log.e("Firebase", "addUserFavorites: user id failed")
-            return
-        }
-        // Data to add **NOTE: change later to suit needs
-        val favorite = hashMapOf(
-            "layoutName" to layoutName,
-            "icon" to iconId,
-            "bellStatus" to notificationBell,
-            "isActive" to false
-        )
-
-        db.collection("users").document(userId).collection("favorites").document(layoutName)
-            .set(favorite)
-            .addOnSuccessListener {
-                Log.d("Firebase", "Favorite successfully written for user $userId!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error writing favorite for user $userId", e)
-            }
-    }
-
-//    data class Favorite(  maybe have these as classes
-//        val layoutName: String,
-//        val icon: Int? = null,
-//        val bellStatus: Boolean,
-//        val isActive: Boolean = false
-//    )
-//
-//    data class Pin(
-//        val xmlName: String,
-//        val latitude: Double,
-//        val longitude: Double,
-//        val locationName: String,
-//        val description: String,
-//        val rating: Int
-//    )
-
-    // Method to add a user to Firestore
-    fun addUser(userId: String, name: String, age: Int) {
-        // Data to add **NOTE: change later to suit needs
-        val user = hashMapOf(
-            "name" to name,
-            "age" to age
-        )
-
-        db.collection("users") // "users" is the collection name
-            .document(userId)   // userId is the document ID
-            .set(user)          // Add data to Firestore
-            .addOnSuccessListener {
-                Log.d("Firebase", "DocumentSnapshot successfully written!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error writing document", e)
-            }
-    }
-    // Method to retrieve a user by userId
-    fun getUser(userId: String, onComplete: (Map<String, Any>?) -> Unit) {
-        db.collection("users").document(userId).get()
-            .addOnSuccessListener { document ->
-                if (document != null) {
-                    Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
-                    onComplete(document.data)  // Return the document data to the caller
-                } else {
-                    Log.d("Firebase", "Get User: No such document")
-                    onComplete(null)
+            db.collection("users").document(userId).collection("favorites").document(locationName)
+                .update(updates)
+                .addOnSuccessListener {
+                    callback(true)
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error getting document", e)
-                onComplete(null)
-            }
-    }
-
-
-    // ---------Adding a favorite-----------
-    fun addFavorite(layoutName: String, iconId: Int, notificationBell: Boolean) { // iconId might del
-//        val favorite = hashMapOf(
-//            "layoutName" to layoutName,
-//            "icon" to iconId,
-//            "bellStatus" to notificationBell,
-//            "isActive" to false
-//        )
-//
-//        db.collection("favorites").document(layoutName).set(favorite)
-//            .addOnSuccessListener {
-//                Log.d("Firebase", "Favorite successfully written!")
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w("Firebase", "Error writing document", e)
-//            }
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "addUserFavorites: user id success")
-        } else {
-            Log.e("Firebase", "addUserFavorites: user id failed")
-            return
-        }
-        // Data to add **NOTE: change later to suit needs
-        val favorite = hashMapOf(
-            "layoutName" to layoutName,
-            "icon" to iconId,
-            "bellStatus" to notificationBell,
-            "isActive" to false
-        )
-
-        db.collection("users").document(userId).collection("favorites").document(layoutName)
-            .set(favorite)
-            .addOnSuccessListener {
-                Log.d("Firebase", "Favorite successfully written for user $userId!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error writing favorite for user $userId", e)
-            }
-    }
-    // retrieving a specific favorite (for testing)
-    fun getFavorite(layoutName: String, onComplete: (Map<String, Any>?) -> Unit) {
-//        db.collection("favorites").document(layoutName).get()
-//            .addOnSuccessListener { document ->
-//                if (document.exists()) {
-//                    Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
-//                    onComplete(document.data)  // Return the document data to the caller
-//                } else {
-//                    Log.d("Firebase", "Get Fav: No such document")
-//                    onComplete(null)
-//                }
-//            }
-//            .addOnFailureListener { e ->
-//                Log.w("Firebase", "Error getting document", e)
-//                onComplete(null)
-//            }
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "getAllFavs: user id success")
-        } else {
-            Log.e("Firebase", "getAllFavs: user id failed")
-            onComplete(null)
-            return
-        }
-
-        db.collection("users").document(userId).collection("favorites")
-            .document(layoutName)
-            .get()
-            .addOnSuccessListener { document ->
-                if (document.exists()) {
-                    Log.d("Firebase", "Snapshot data ${document.data}")
-                    onComplete(document.data)
-                } else {
-                    Log.d("Firebase", "No such document")
-                    onComplete(null)
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Error updating favorite for $locationName: ", e)
+                    callback(false)
                 }
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error getting all favorites for user $userId", e)
-                onComplete(null)
-            }
+        } else {
+            Log.e("Firebase", "User not logged in")
+            callback(false)
+        }
     }
-    // Get all favorites
+
+    fun getCurrentUserId(): String {
+        return auth.currentUser?.uid!!
+    }
+
+    //Initially used to add a favorite
+    fun updateFavoriteStatus(locationName: String, isFavorite: Boolean, bellStatus: Boolean, callback: (Boolean) -> Unit) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val favoriteData = hashMapOf(
+                "isFavorite" to isFavorite,
+                "bellStatus" to bellStatus,
+                "locationName" to locationName
+            )
+
+            db.collection("users").document(userId).collection("favorites").document(locationName).set(favoriteData)
+                .addOnSuccessListener {
+                    Log.d("Firebase", "Favorite status updated for $locationName")
+                    callback(true)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Error updating favorite status for $locationName", e)
+                    callback(false)
+                }
+        } else {
+            Log.e("Firebase", "User not logged in")
+        }
+    }
+
+    fun isFavorite(locationName: String, callback: (Boolean) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            val favoriteRef = db.collection("users").document(userId).collection("favorites").document(locationName)
+
+            favoriteRef.get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        callback(document.getBoolean("isFavorite") ?: false)
+                    } else {
+                        callback(false) // Default to not favorited if document doesn't exist
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firebase", "Failed to check favorite status", exception)
+                    callback(false) // Default to false on failure
+                }
+        }
+    }
+
     fun getAllFavorites(onComplete: (List<Map<String, Any>>) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -221,80 +101,41 @@ class Firebase {
                 onComplete(emptyList())
             }
     }
-    // Update favorites
-    fun updateFavorite(layoutName: String, updates: Map<String, Any>, onComplete: (Boolean) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "updateFavs: user id success")
-        } else {
-            Log.e("Firebase", "updateFavs: user id failed")
-            onComplete(false)
-            return
-        }
-        db.collection("users").document(userId).collection("favorites").document(layoutName)
-            .update(updates)
+
+    //Adding pins to the database
+    fun addGlobalPin(pinName: String, pinData: Map<String, Any>) {
+        val pinRef = db.collection(PINS_COLLECTION).document(pinName)
+
+        pinRef.set(pinData)
             .addOnSuccessListener {
-                Log.d("Firebase", "Favorite successfully updated!")
-                onComplete(true)
+                Log.d("Firebase", "Pin added!")
             }
             .addOnFailureListener { e ->
-                Log.w("Firebase", "Error updating document", e)
-                onComplete(false)
-            }
-    }
-    // Remove favorite
-    fun removeFavorite(layoutName: String, onComplete: (Boolean) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "removeFavs: user id success")
-        } else {
-            Log.e("Firebase", "removeFavs: user id failed")
-            onComplete(false)
-            return
-        }
-        db.collection("users").document(userId).collection("favorites").document(layoutName).delete()
-            .addOnSuccessListener {
-                Log.d("Firebase", "Favorite successfully deleted!")
-                onComplete(true) // Indicate success
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error deleting document", e)
-                onComplete(false) // Indicate failure
+                Log.e("Firebase", "Error adding pin...", e)
             }
     }
 
-    // ---------Adding a pin--------------
-    fun addPin(pinName: String, pin: Map<String, Any>) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "addPin: user id success")
-        } else {
-            Log.e("Firebase", "addPin: user id failed")
-            return
-        }
-        db.collection("users").document(userId).collection("pins").document(pinName).set(pin)
-            .addOnSuccessListener {
-                Log.d("Firebase", "Pin successfully written!")
+    //Getting global pins
+    fun getGlobalPins(onComplete: (List<Map<String, Any>>) -> Unit) {
+        db.collection(PINS_COLLECTION)
+            .get()
+            .addOnSuccessListener { result ->
+                val pinList = result.documents.mapNotNull { it.data }
+                onComplete(pinList)
             }
             .addOnFailureListener { e ->
-                Log.w("Firebase", "Error writing document", e)
+                Log.e("Firebase", "Error getting global pins", e)
+                onComplete(emptyList())
             }
     }
-    // retrieving a specific pin
+
+    //Retrieving a specific pin
     fun getPin(pinName: String, onComplete: (Map<String, Any>?) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "getPin: user id success")
-        } else {
-            Log.e("Firebase", "getPin: user id failed")
-            onComplete(null)
-            return
-        }
-        db.collection("users").document(userId).collection("pins").document(pinName).get()
+        db.collection(PINS_COLLECTION).document(pinName).get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
                     Log.d("Firebase", "DocumentSnapshot data: ${document.data}")
-                    onComplete(document.data)  // Return the document data to the caller
+                    onComplete(document.data)
                 } else {
                     Log.d("Firebase", "Get Pin: No such document")
                     onComplete(null)
@@ -305,27 +146,8 @@ class Firebase {
                 onComplete(null)
             }
     }
-    // Get all pins
-    fun getAllPins(onComplete: (List<Map<String, Any>>) -> Unit) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "getAllPin: user id success")
-        } else {
-            Log.e("Firebase", "getAllPin: user id failed")
-            onComplete(emptyList())
-            return
-        }
-        db.collection("users").document(userId).collection("pins").get()
-            .addOnSuccessListener { result ->
-                val pinList = result.documents.mapNotNull { it.data }
-                onComplete(pinList)
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error getting all pins", e)
-                onComplete(emptyList())
-            }
-    }
-    // Update pins
+
+    //NOT SURE WHAT THIS MIGHT BE USED FOR
     fun updatePin(pinName: String, updates: Map<String, Any>) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -334,7 +156,10 @@ class Firebase {
             Log.e("Firebase", "updatePin: user id failed")
             return
         }
-        db.collection("users").document(userId).collection("pins").document(pinName)
+
+        //TODO logic for checking if valid user (if their UID match)
+
+        db.collection("users").document(userId).collection(PINS_COLLECTION).document(pinName)
             .update(updates)
             .addOnSuccessListener {
                 Log.d("Firebase", "Pin successfully updated!")
@@ -343,7 +168,8 @@ class Firebase {
                 Log.w("Firebase", "Error updating document", e)
             }
     }
-    // Remove pin
+
+    //Removes pin from the database
     fun removePin(pinName: String, onComplete: (Boolean) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -353,55 +179,16 @@ class Firebase {
             onComplete(false)
             return
         }
-        db.collection("users").document(userId).collection("pins").document(pinName).delete()
+
+        db.collection(PINS_COLLECTION).document(pinName).delete()
             .addOnSuccessListener {
                 Log.d("Firebase", "Pin successfully deleted!")
-                onComplete(true) // Indicate success
+                onComplete(true)
             }
             .addOnFailureListener { e ->
                 Log.w("Firebase", "Error deleting document", e)
-                onComplete(false) // Indicate failure
+                onComplete(false)
             }
-    }
-
-
-
-
-
-
-    fun exampleUsage() {
-        val firebaseHelper = Firebase()
-
-        // Add a user
-        firebaseHelper.addUser("01", "Ethan", 23)
-
-        // Retrieve a user
-        firebaseHelper.getUser("01") { userData ->
-            if (userData != null) {
-                val name = userData["name"]
-                val age = userData["age"]
-                Log.d("MainActivity", "User Name: $name, Age: $age")
-            } else {
-                Log.d("MainActivity", "User not found.")
-            }
-        }
-
-        // Add a Favorite
-        //firebaseHelper.addFavorite("College_Hall","f_college_hall",1, false) never run this please
-
-        // retrieve the specific favorite
-        getFavorite("College_Hall") { favoriteData ->
-            if (favoriteData != null) {
-                val iconResource = favoriteData["iconResource"] as? Int
-                val notificationEnabled = favoriteData["notificationEnabled"] as? Boolean
-
-                // Use these properties to update the UI as needed
-
-                Log.d("MainActivity", "Successfully retrieved \"Favorite\" data")
-            } else {
-                Log.d("MainActivity", "Error retrieving \"Favorite\" data")
-            }
-        }
     }
 }
 
