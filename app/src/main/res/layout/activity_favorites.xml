@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:paddingTop="40dp"
     android:paddingStart="20dp"
-    android:paddingEnd="20dp" >
+    android:paddingEnd="20dp">
+
     <ImageButton
         android:id="@+id/back_button"
         android:layout_width="wrap_content"
@@ -28,52 +27,91 @@
         android:layout_gravity="center"
         android:paddingBottom="15dp" />
 
-<!--    COLLEGE HALL-->
+    <!-- RecyclerView for Favorites -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favorites_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
+</LinearLayout>
+
+<!--<?xml version="1.0" encoding="utf-8"?>-->
+<!--<LinearLayout-->
+<!--    xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--    xmlns:app="http://schemas.android.com/apk/res-auto"-->
+<!--    android:layout_width="match_parent"-->
+<!--    android:layout_height="match_parent"-->
+<!--    android:orientation="vertical"-->
+<!--    android:paddingTop="40dp"-->
+<!--    android:paddingStart="20dp"-->
+<!--    android:paddingEnd="20dp" >-->
+<!--    <ImageButton-->
+<!--        android:id="@+id/back_button"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:background="?android:attr/selectableItemBackground"-->
+<!--        android:src="@drawable/back_arrow"-->
+<!--        android:contentDescription="@string/back_to_home"-->
+<!--        android:layout_gravity="start"-->
+<!--        android:padding="20dp" />-->
+
+<!--    <TextView-->
+<!--        android:id="@+id/favorites_title"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/favorites"-->
+<!--        android:textSize="28sp"-->
+<!--        android:textStyle="bold"-->
+<!--        android:layout_gravity="center"-->
+<!--        android:paddingBottom="15dp" />-->
+
+<!--&lt;!&ndash;    COLLEGE HALL&ndash;&gt;-->
+<!--&lt;!&ndash;    <LinearLayout&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/favorite_row"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:orientation="horizontal"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:padding="16dp">&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/remove_favorite"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:background="?android:attr/selectableItemBackground"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:tint="@android:color/holo_red_dark"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:src="@drawable/heart_filled"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:padding="16dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:contentDescription="@string/remove_favorite" />&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/favorite_name"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="0dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_weight="1"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_gravity="center_vertical|center_horizontal"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:text="@string/college_hall"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:textSize="24sp"/>&ndash;&gt;-->
+
+<!--&lt;!&ndash;        <ImageButton&ndash;&gt;-->
+<!--&lt;!&ndash;            android:id="@+id/notification_bell"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:layout_height="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:background="?android:attr/selectableItemBackground"&ndash;&gt;-->
+<!--&lt;!&ndash;            app:tint="@android:color/black"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:src="@drawable/notifications_none"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:padding="16dp"&ndash;&gt;-->
+<!--&lt;!&ndash;            android:contentDescription="@string/notification_bell" />&ndash;&gt;-->
+<!--&lt;!&ndash;    </LinearLayout>&ndash;&gt;-->
+
+<!--    &lt;!&ndash; Container for dynamically added favorite rows &ndash;&gt;-->
 <!--    <LinearLayout-->
-<!--        android:id="@+id/favorite_row"-->
+<!--        android:id="@+id/favorites_container"-->
 <!--        android:layout_width="match_parent"-->
 <!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        android:padding="16dp">-->
-
-<!--        <ImageButton-->
-<!--            android:id="@+id/remove_favorite"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="?android:attr/selectableItemBackground"-->
-<!--            app:tint="@android:color/holo_red_dark"-->
-<!--            android:src="@drawable/heart_filled"-->
-<!--            android:padding="16dp"-->
-<!--            android:contentDescription="@string/remove_favorite" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/favorite_name"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:layout_gravity="center_vertical|center_horizontal"-->
-<!--            android:text="@string/college_hall"-->
-<!--            android:textSize="24sp"/>-->
-
-<!--        <ImageButton-->
-<!--            android:id="@+id/notification_bell"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="?android:attr/selectableItemBackground"-->
-<!--            app:tint="@android:color/black"-->
-<!--            android:src="@drawable/notifications_none"-->
-<!--            android:padding="16dp"-->
-<!--            android:contentDescription="@string/notification_bell" />-->
-<!--    </LinearLayout>-->
-
-    <!-- Container for dynamically added favorite rows -->
-    <LinearLayout
-        android:id="@+id/favorites_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" />
+<!--        android:orientation="vertical" />-->
 
 
 
 
-</LinearLayout>
+<!--</LinearLayout>-->
