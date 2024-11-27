@@ -325,7 +325,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 "userName" to userName,
                 "isFoodCheck" to foodFilter,
                 "isStudySpot" to studySpotFilter,
-                "isClassroom" to classroomFilter
+                "isClassroom" to classroomFilter,
+                "likeCount" to 0,
+                "dislikeCount" to 0,
+                "commentCount" to 0
             )
 
             //Saving pin data to the database

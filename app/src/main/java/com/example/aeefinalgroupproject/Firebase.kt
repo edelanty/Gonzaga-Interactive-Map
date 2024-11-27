@@ -80,6 +80,80 @@ class Firebase {
         }
     }
 
+    fun getUserLikeStatus(locationName: String, callback: (Boolean, Boolean) -> Unit) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            db.collection("users").document(userId).collection("likes").document(locationName).get()
+                .addOnSuccessListener { document ->
+                    if (document.exists()) {
+                        val liked = document.getBoolean("liked") ?: false
+                        val disliked = document.getBoolean("disliked") ?: false
+                        callback(liked, disliked)
+                    } else {
+                        callback(false, false)
+                    }
+                }
+                .addOnFailureListener { exception ->
+                    Log.e("Firebase", "Failed to check like/dislike status", exception)
+                    callback(false, false)
+                }
+        } else {
+            Log.e("Firebase", "User not logged in")
+            callback(false, false)
+        }
+    }
+
+    fun updateUserLikeStatus(
+        locationName: String,
+        liked: Boolean,
+        disliked: Boolean,
+        callback: (Boolean) -> Unit
+    ) {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            val likeData = mapOf(
+                "liked" to liked,
+                "disliked" to disliked
+            )
+
+            db.collection("users").document(userId).collection("likes").document(locationName).set(likeData)
+                .addOnSuccessListener {
+                    Log.d("Firebase", "Like/Dislike status updated for $locationName")
+                    callback(true)
+                }
+                .addOnFailureListener { e ->
+                    Log.e("Firebase", "Error updating like/dislike status for $locationName", e)
+                    callback(false)
+                }
+        } else {
+            Log.e("Firebase", "User not logged in")
+            callback(false)
+        }
+    }
+
+    fun updatePinLikeDislikeCounts(
+        locationName: String,
+        likeDelta: Int,
+        dislikeDelta: Int,
+        callback: (Boolean) -> Unit
+    ) {
+        val pinRef = db.collection(PINS_COLLECTION).document(locationName)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(pinRef)
+            val currentLikes = snapshot.getLong("likeCount") ?: 0
+            val currentDislikes = snapshot.getLong("dislikeCount") ?: 0
+
+            transaction.update(pinRef, "likeCount", (currentLikes + likeDelta).coerceAtLeast(0))
+            transaction.update(pinRef, "dislikeCount", (currentDislikes + dislikeDelta).coerceAtLeast(0))
+        }.addOnSuccessListener {
+            Log.d("Firebase", "Pin like/dislike counts updated for $locationName")
+            callback(true)
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Failed to update pin counts for $locationName", e)
+            callback(false)
+        }
+    }
+
     fun getAllFavorites(onComplete: (List<Map<String, Any>>) -> Unit) {
         val userId = auth.currentUser?.uid
         if (userId != null) {
@@ -144,28 +218,6 @@ class Firebase {
             .addOnFailureListener { e ->
                 Log.w("Firebase", "Error getting document", e)
                 onComplete(null)
-            }
-    }
-
-    //NOT SURE WHAT THIS MIGHT BE USED FOR
-    fun updatePin(pinName: String, updates: Map<String, Any>) {
-        val userId = auth.currentUser?.uid
-        if (userId != null) {
-            Log.d("Firebase", "updatePin: user id success")
-        } else {
-            Log.e("Firebase", "updatePin: user id failed")
-            return
-        }
-
-        //TODO logic for checking if valid user (if their UID match)
-
-        db.collection("users").document(userId).collection(PINS_COLLECTION).document(pinName)
-            .update(updates)
-            .addOnSuccessListener {
-                Log.d("Firebase", "Pin successfully updated!")
-            }
-            .addOnFailureListener { e ->
-                Log.w("Firebase", "Error updating document", e)
             }
     }
 
