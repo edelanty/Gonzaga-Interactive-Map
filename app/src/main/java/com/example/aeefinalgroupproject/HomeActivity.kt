@@ -151,8 +151,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         return super.onOptionsItemSelected(item)
     }
 
-    //TODO fix this
-    // Filter Selection popup menu (checkboxes)
     private fun showFilterSelection() {
         val dialogView = layoutInflater.inflate(R.layout.filter_checkboxes, null)
 
