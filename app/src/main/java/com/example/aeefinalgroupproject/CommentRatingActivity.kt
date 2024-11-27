@@ -35,6 +35,10 @@ class CommentRatingActivity : AppCompatActivity() {
     private lateinit var commentCountTextView: TextView
     private lateinit var locationName: String
 
+    interface DeletePinCallback {
+        fun onPinDeleted(success: Boolean)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment_rating)
@@ -91,18 +95,25 @@ class CommentRatingActivity : AppCompatActivity() {
         }
 
         deleteImageButton.setOnClickListener {
-            deletePin()
+            //Makes sure we don't delete no matter user response in dialogue
+            deletePin(object : DeletePinCallback {
+                override fun onPinDeleted(success: Boolean) {
+                    if (success) {
+                        //Goes back to HomeActivity
+                        finish()
+                    }
+                }
+            })
             //TODO there is a bug where the marker remains on the map, I've tried fixing but we are probably going to have to pass
             //in the locationName through the intent to get to this activity, remove the marker before we go here, and then if there is no
             //deletion, query all the information about that locationName marker and add it back to the map before we return... (I don't want to do this right now)
-            finish()
         }
     }
 
     private fun liked() {
         firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
             val newLikedStatus = !likedStatus
-            val newDislikedStatus = false // Cannot dislike if liked
+            val newDislikedStatus = false
 
             firebase.updateUserLikeStatus(locationName, newLikedStatus, newDislikedStatus) { userUpdateSuccess ->
                 if (userUpdateSuccess) {
@@ -115,12 +126,8 @@ class CommentRatingActivity : AppCompatActivity() {
                             isLiked = newLikedStatus
                             isDisliked = newDislikedStatus
                             updateLikeDislikeUI()
-                        } else {
-                            Toast.makeText(this, "Failed to update pin counts.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                } else {
-                    Toast.makeText(this, "Failed to update like status.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -128,7 +135,7 @@ class CommentRatingActivity : AppCompatActivity() {
 
     private fun disliked() {
         firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
-            val newLikedStatus = false // Cannot like if disliked
+            val newLikedStatus = false
             val newDislikedStatus = !dislikedStatus
 
             firebase.updateUserLikeStatus(locationName, newLikedStatus, newDislikedStatus) { userUpdateSuccess ->
@@ -142,17 +149,14 @@ class CommentRatingActivity : AppCompatActivity() {
                             isLiked = newLikedStatus
                             isDisliked = newDislikedStatus
                             updateLikeDislikeUI()
-                        } else {
-                            Toast.makeText(this, "Failed to update pin counts.", Toast.LENGTH_SHORT).show()
                         }
                     }
-                } else {
-                    Toast.makeText(this, "Failed to update dislike status.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
     }
 
+    //TODO comments
     private fun comments() {
 
     }
@@ -195,14 +199,28 @@ class CommentRatingActivity : AppCompatActivity() {
     }
 
     //Removes a pin given a specified locationName
-    private fun deletePin() {
-        firebase.removePin(locationName) { success ->
-            if (success) {
-                Toast.makeText(this, "$locationName has been deleted!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Failed to delete $locationName", Toast.LENGTH_SHORT).show()
+    private fun deletePin(callback: DeletePinCallback) {
+        val dialogBuilder = android.app.AlertDialog.Builder(this)
+        dialogBuilder.setTitle("Delete Pin")
+            .setMessage("Are you sure you want to delete your $locationName pin?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                firebase.removePin(locationName) { success ->
+                    if (success) {
+                        Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Failed to delete $locationName pin.", Toast.LENGTH_SHORT).show()
+                    }
+                    callback.onPinDeleted(success)
+                }
+                dialog.dismiss()
             }
-        }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                callback.onPinDeleted(false)
+                dialog.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
     }
 
     //Updates UI depending on the like/dislike status
@@ -281,5 +299,4 @@ class CommentRatingActivity : AppCompatActivity() {
             }
         }
     }
-//TODO setup images properly, allow for deletions by a user with the same UID on a pin, and comments/upvote
 }
