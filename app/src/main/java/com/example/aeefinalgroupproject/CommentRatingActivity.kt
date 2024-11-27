@@ -107,6 +107,7 @@ class CommentRatingActivity : AppCompatActivity() {
             //TODO there is a bug where the marker remains on the map, I've tried fixing but we are probably going to have to pass
             //in the locationName through the intent to get to this activity, remove the marker before we go here, and then if there is no
             //deletion, query all the information about that locationName marker and add it back to the map before we return... (I don't want to do this right now)
+            //TODO ETHAN DANITZ DO THIS...
         }
     }
 
