@@ -3,16 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:paddingTop="40dp"
+    android:paddingTop="20dp"
     android:paddingLeft="20dp"
     android:paddingRight="20dp">
 
     <!-- Top Section with Back Button and Location Name -->
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:layout_height="wrap_content">
 
         <ImageButton
             android:id="@+id/back_button"
@@ -21,7 +19,9 @@
             android:background="?android:attr/selectableItemBackground"
             android:src="@drawable/back_arrow"
             android:contentDescription="@string/back_to_home"
-            android:padding="20dp" />
+            android:padding="20dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
 
         <TextView
             android:id="@+id/locationNameTextView"
@@ -30,8 +30,9 @@
             android:autoSizeTextType="uniform"
             android:text="@string/location_name"
             android:textSize="35sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            android:textStyle="bold"
+            android:layout_centerInParent="true" />
+    </RelativeLayout>
 
     <!-- Image Section -->
     <ImageView
@@ -110,109 +111,109 @@
                     android:text="@string/favorite"
                     android:layout_marginTop="-25dp"
                     android:textSize="20sp" />
-                </LinearLayout>
-
-                <!-- Like Button -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <ImageButton
-                        android:id="@+id/like_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/like"
-                        android:padding="20dp"
-                        android:src="@drawable/like_icon_foreground" />
-
-                    <TextView
-                        android:id="@+id/like_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/_0"
-                        android:layout_marginTop="-25dp"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <!-- Dislike Button -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <ImageButton
-                        android:id="@+id/dislike_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/dislike"
-                        android:padding="20dp"
-                        android:src="@drawable/dislike_icon_foreground" />
-
-                    <TextView
-                        android:id="@+id/dislike_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/_0"
-                        android:layout_marginTop="-25dp"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <!-- Comment Button -->
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <ImageButton
-                        android:id="@+id/comment_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/comment"
-                        android:padding="20dp"
-                        android:src="@drawable/comment_icon_foreground" />
-
-                    <TextView
-                        android:id="@+id/comment_count"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/_0"
-                        android:layout_marginTop="-25dp"
-                        android:textSize="20sp" />
-                </LinearLayout>
-
-                <!-- Delete Button -->
-                <LinearLayout
-                    android:id="@+id/delete_layout"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:visibility="invisible"
-                    android:orientation="vertical"
-                    android:gravity="center">
-
-                    <ImageButton
-                        android:id="@+id/delete_pin_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:contentDescription="@string/delete"
-                        android:padding="20dp"
-                        android:src="@drawable/ic_delete_foreground" />
-
-                    <TextView
-                        android:id="@+id/delete_pin_label"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/delete"
-                        android:layout_marginTop="-25dp"
-                        android:textSize="20sp" />
-                </LinearLayout>
             </LinearLayout>
+
+            <!-- Like Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/like_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/like"
+                    android:padding="20dp"
+                    android:src="@drawable/like_icon_foreground" />
+
+                <TextView
+                    android:id="@+id/like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_0"
+                    android:layout_marginTop="-25dp"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <!-- Dislike Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/dislike_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/dislike"
+                    android:padding="20dp"
+                    android:src="@drawable/dislike_icon_foreground" />
+
+                <TextView
+                    android:id="@+id/dislike_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_0"
+                    android:layout_marginTop="-25dp"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <!-- Comment Button -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/comment_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/comment"
+                    android:padding="20dp"
+                    android:src="@drawable/comment_icon_foreground" />
+
+                <TextView
+                    android:id="@+id/comment_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/_0"
+                    android:layout_marginTop="-25dp"
+                    android:textSize="20sp" />
+            </LinearLayout>
+
+            <!-- Delete Button -->
+            <LinearLayout
+                android:id="@+id/delete_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageButton
+                    android:id="@+id/delete_pin_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/delete"
+                    android:padding="20dp"
+                    android:src="@drawable/ic_delete_foreground" />
+
+                <TextView
+                    android:id="@+id/delete_pin_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/delete"
+                    android:layout_marginTop="-25dp"
+                    android:textSize="20sp" />
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </LinearLayout>
