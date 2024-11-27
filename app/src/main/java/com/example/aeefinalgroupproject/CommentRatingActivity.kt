@@ -1,7 +1,6 @@
 package com.example.aeefinalgroupproject
 
 import android.annotation.SuppressLint
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
@@ -13,6 +12,9 @@ import androidx.appcompat.app.AppCompatActivity
 
 class CommentRatingActivity : AppCompatActivity() {
     private var isFavorited = false
+    private var isLiked = false
+    private var isDisliked = false
+
     private val firebase = Firebase()
 
     //For view changes
@@ -25,48 +27,162 @@ class CommentRatingActivity : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var deleteLayout: LinearLayout
     private lateinit var deleteImageButton: ImageButton
+    private lateinit var commentImageButton: ImageButton
+    private lateinit var likeImageButton: ImageButton
+    private lateinit var dislikeImageButton: ImageButton
+    private lateinit var likeCountTextView: TextView
+    private lateinit var dislikeCountTextView: TextView
+    private lateinit var commentCountTextView: TextView
+    private lateinit var locationName: String
+
+    interface DeletePinCallback {
+        fun onPinDeleted(success: Boolean)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comment_rating)
 
         //Location name from Intent to use to query the pin from database
-        val locationName = intent.getStringExtra("locationName")!!
+        locationName = intent.getStringExtra("locationName")!!
 
+        //Top Half
         locationNameTextView = findViewById(R.id.locationNameTextView)
         descriptionTextView = findViewById(R.id.descriptionTextView)
         ratingTextView = findViewById(R.id.ratingTextView)
         locationImageView = findViewById(R.id.locationImageView)
         userNameTextView = findViewById(R.id.userNameTextView)
-        favoriteButton = findViewById(R.id.favorite_button)
         backButton = findViewById(R.id.back_button)
+
+        //Bottom Half
+        favoriteButton = findViewById(R.id.favorite_button)
+        commentImageButton = findViewById(R.id.comment_button)
+        commentCountTextView = findViewById(R.id.comment_count)
+        likeImageButton = findViewById(R.id.like_button)
+        dislikeImageButton = findViewById(R.id.dislike_button)
         deleteLayout = findViewById(R.id.delete_layout)
         deleteImageButton = findViewById(R.id.delete_pin_button)
+        likeCountTextView = findViewById(R.id.like_count)
+        dislikeCountTextView = findViewById(R.id.dislike_count)
 
-        checkFavoriteStatus(locationName)
-        updateView(locationName)
+        checkLikeDislikeStatus()
+        checkFavoriteStatus()
+        updateView()
+        createListeners()
+        setDeleteVisibilityForOwner()
+    }
+
+    //Sets all the listeners
+    private fun createListeners() {
+        likeImageButton.setOnClickListener {
+            liked()
+        }
+
+        dislikeImageButton.setOnClickListener {
+            disliked()
+        }
+
+        commentImageButton.setOnClickListener {
+            comments()
+        }
 
         backButton.setOnClickListener {
             finish()
         }
 
         favoriteButton.setOnClickListener {
-            onFavoriteButtonClicked(locationName)
+            onFavoriteButtonClicked()
         }
 
         deleteImageButton.setOnClickListener {
-            deletePin(locationName)
+            //Makes sure we don't delete no matter user response in dialogue
+            deletePin(object : DeletePinCallback {
+                override fun onPinDeleted(success: Boolean) {
+                    if (success) {
+                        //Goes back to HomeActivity
+                        finish()
+                    }
+                }
+            })
             //TODO there is a bug where the marker remains on the map, I've tried fixing but we are probably going to have to pass
             //in the locationName through the intent to get to this activity, remove the marker before we go here, and then if there is no
             //deletion, query all the information about that locationName marker and add it back to the map before we return... (I don't want to do this right now)
-            finish()
         }
+    }
 
-        setDeleteVisibilityForOwner(locationName)
+    private fun liked() {
+        firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
+            val newLikedStatus = !likedStatus
+            val newDislikedStatus = false
+
+            firebase.updateUserLikeStatus(locationName, newLikedStatus, newDislikedStatus) { userUpdateSuccess ->
+                if (userUpdateSuccess) {
+                    firebase.updatePinLikeDislikeCounts(
+                        locationName,
+                        likeDelta = if (newLikedStatus) 1 else -1,
+                        dislikeDelta = if (dislikedStatus) -1 else 0
+                    ) { pinUpdateSuccess ->
+                        if (pinUpdateSuccess) {
+                            isLiked = newLikedStatus
+                            isDisliked = newDislikedStatus
+                            updateLikeDislikeUI()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun disliked() {
+        firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
+            val newLikedStatus = false
+            val newDislikedStatus = !dislikedStatus
+
+            firebase.updateUserLikeStatus(locationName, newLikedStatus, newDislikedStatus) { userUpdateSuccess ->
+                if (userUpdateSuccess) {
+                    firebase.updatePinLikeDislikeCounts(
+                        locationName,
+                        likeDelta = if (likedStatus) -1 else 0,
+                        dislikeDelta = if (newDislikedStatus) 1 else -1
+                    ) { pinUpdateSuccess ->
+                        if (pinUpdateSuccess) {
+                            isLiked = newLikedStatus
+                            isDisliked = newDislikedStatus
+                            updateLikeDislikeUI()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    //TODO comments
+    private fun comments() {
+
+    }
+
+    //Switches the UI depending on liked or disliked
+    private fun updateLikeDislikeUI() {
+        firebase.getPin(locationName) { pinData ->
+            if (pinData != null) {
+                val likeCount = pinData["likeCount"] as? Number
+                val dislikeCount = pinData["dislikeCount"] as? Number
+                val commentCount = pinData["commentCount"] as? Number
+
+                //Update TextViews and buttons
+                likeCountTextView.text = likeCount.toString()
+                dislikeCountTextView.text = dislikeCount.toString()
+                commentCountTextView.text = commentCount.toString()
+                likeImageButton.setImageResource(if (isLiked) R.drawable.like_icon_foreground else R.drawable.like_outline_foreground)
+                dislikeImageButton.setImageResource(if (isDisliked) R.drawable.dislike_icon_foreground else R.drawable.dislike_outline_foreground)
+            } else {
+                Log.e("Firebase", "Failed to fetch pin data")
+            }
+        }
     }
 
     //Makes the delete button visible only for the creator of the pin
-    private fun setDeleteVisibilityForOwner(locationName: String) {
+    private fun setDeleteVisibilityForOwner() {
         val currentUser = firebase.getCurrentUserId()
 
         firebase.getPin(locationName) { pinData ->
@@ -83,17 +199,45 @@ class CommentRatingActivity : AppCompatActivity() {
     }
 
     //Removes a pin given a specified locationName
-    private fun deletePin(locationName: String) {
-        firebase.removePin(locationName) { success ->
-            if (success) {
-                Toast.makeText(this, "$locationName has been deleted!", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Failed to delete $locationName", Toast.LENGTH_SHORT).show()
+    private fun deletePin(callback: DeletePinCallback) {
+        val dialogBuilder = android.app.AlertDialog.Builder(this)
+        dialogBuilder.setTitle("Delete Pin")
+            .setMessage("Are you sure you want to delete your $locationName pin?")
+            .setPositiveButton("Yes") { dialog, _ ->
+                firebase.removePin(locationName) { success ->
+                    if (success) {
+                        Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(this, "Failed to delete $locationName pin.", Toast.LENGTH_SHORT).show()
+                    }
+                    callback.onPinDeleted(success)
+                }
+                dialog.dismiss()
             }
+            .setNegativeButton("Cancel") { dialog, _ ->
+                callback.onPinDeleted(false)
+                dialog.dismiss()
+            }
+
+        val alertDialog = dialogBuilder.create()
+        alertDialog.show()
+    }
+
+    //Updates UI depending on the like/dislike status
+    private fun checkLikeDislikeStatus() {
+        // Fetch the current like/dislike status for the pin
+        firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
+            // Update the local variables for UI control
+            isLiked = likedStatus
+            isDisliked = dislikedStatus
+
+            // Update the UI based on the retrieved statuses
+            updateLikeDislikeUI()
         }
     }
 
-    private fun checkFavoriteStatus(locationName: String) {
+    //Updates UI depending on the favorite status
+    private fun checkFavoriteStatus() {
         firebase.isFavorite(locationName) { isFavorite ->
             isFavorited = isFavorite
 
@@ -103,7 +247,7 @@ class CommentRatingActivity : AppCompatActivity() {
         }
     }
 
-    private fun onFavoriteButtonClicked(locationName: String) {
+    private fun onFavoriteButtonClicked() {
         //Toggle the favorite status
         val newFavoriteStatus = !isFavorited
         val bellStatus = false
@@ -127,12 +271,15 @@ class CommentRatingActivity : AppCompatActivity() {
 
     //Updates the information shown on the view for a clicked on pin
     @SuppressLint("SetTextI18n")
-    private fun updateView(locationName: String) {
+    private fun updateView() {
         firebase.getPin(locationName) { pinData ->
             if (pinData != null) {
                 val description = pinData["description"] as? String
                 val rating = pinData["rating"] as? Double ?: 0.0
                 var userName = pinData["userName"] as? String
+                val likeCount = pinData["likeCount"] as? Number
+                val dislikeCount = pinData["dislikeCount"] as? Number
+                val commentCount = pinData["commentCount"] as? Number
 
                 //Just get the name from the email
                 userName = userName?.substringBefore("@")
@@ -143,10 +290,13 @@ class CommentRatingActivity : AppCompatActivity() {
                 locationNameTextView.text = locationName
                 descriptionTextView.text = description
                 ratingTextView.text = "Rating: $rating"
+                //All the numbers
+                likeCountTextView.text = likeCount.toString()
+                dislikeCountTextView.text = dislikeCount.toString()
+                commentCountTextView.text = commentCount.toString()
             } else {
                 Log.e("Firebase", "Failed to fetch pin data")
             }
         }
     }
-//TODO setup images properly, allow for deletions by a user with the same UID on a pin, and comments/upvote
 }

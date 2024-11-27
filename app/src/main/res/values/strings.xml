@@ -40,4 +40,8 @@
     <string name="what_is_this_place">What is this place?</string>
     <string name="delete">Delete</string>
     <string name="guest">Guest</string>
+    <string name="_0">0</string>
+    <string name="dislike">Dislike</string>
+    <string name="comment">Comment</string>
+    <string name="like">Like</string>
 </resources>

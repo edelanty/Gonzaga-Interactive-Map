@@ -151,6 +151,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         return super.onOptionsItemSelected(item)
     }
 
+    //TODO fix this
     // Filter Selection popup menu (checkboxes)
     private fun showFilterSelection() {
         val dialogView = layoutInflater.inflate(R.layout.filter_checkboxes, null)
@@ -181,6 +182,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             isClassroomsChecked = checkFilterClassrooms.isChecked
             // Save states
             saveFilterStates()
+
+            //Only display pins with proper filter attributes
+            filterPins(mMap)
+
             dialog.dismiss()
         }
 
@@ -232,6 +237,41 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         //load pins type s
         loadPins(mMap)
+    }
+
+    private fun filterPins(mMap: GoogleMap) {
+        //Remove all the pins from the map after filter state is changed
+        mMap.clear()
+
+        drawRestrictedShape(mMap)
+
+        firebase.getGlobalPins { pinList ->
+            //Check if the pin list is empty
+            if (pinList.isEmpty()) {
+                Log.d("LoadPins", "No global pins found.")
+                return@getGlobalPins
+            }
+
+            //Iterate through the list of global pins
+            for (pinData in pinList) {
+                val latitude = pinData["latitude"] as? Double ?: continue
+                val longitude = pinData["longitude"] as? Double ?: continue
+                val locationName = pinData["locationName"] as? String ?: "Unknown"
+                val description = pinData["description"] as? String ?: ""
+                val isPinFoodSpot = pinData["isFoodCheck"] as? Boolean ?: false
+                val isPinStudySpot = pinData["isStudySpot"] as? Boolean ?: false
+                val isPinClassroomSpot = pinData["isClassroom"] as? Boolean?: false
+
+                val latLng = LatLng(latitude, longitude)
+
+                //Only add the pins with the correct filters
+                if ((isFoodChecked && isPinFoodSpot || !isFoodChecked) && (isStudySpotsChecked && isPinStudySpot || !isStudySpotsChecked) && (isClassroomsChecked && isPinClassroomSpot || !isClassroomsChecked)) {
+                    mMap.addMarker(
+                        MarkerOptions().position(latLng).title(locationName).snippet(description)
+                    )
+                }
+            }
+        }
     }
 
     private fun loadPins(mMap: GoogleMap) {
@@ -325,7 +365,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 "userName" to userName,
                 "isFoodCheck" to foodFilter,
                 "isStudySpot" to studySpotFilter,
-                "isClassroom" to classroomFilter
+                "isClassroom" to classroomFilter,
+                "likeCount" to 0,
+                "dislikeCount" to 0,
+                "commentCount" to 0
             )
 
             //Saving pin data to the database

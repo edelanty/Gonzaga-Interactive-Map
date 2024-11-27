@@ -133,7 +133,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/like"
                     android:padding="20dp"
-                    android:src="@drawable/like_icon_foreground" />
+                    android:src="@drawable/like_outline_foreground" />
 
                 <TextView
                     android:id="@+id/like_count"
@@ -158,7 +158,7 @@
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="@string/dislike"
                     android:padding="20dp"
-                    android:src="@drawable/dislike_icon_foreground" />
+                    android:src="@drawable/dislike_outline_foreground" />
 
                 <TextView
                     android:id="@+id/dislike_count"

@@ -12,6 +12,10 @@ import com.google.firebase.auth.FirebaseAuth
 class EmailPasswordActivity : Activity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var emailInput: EditText
+    private lateinit var passwordInput: EditText
+    private lateinit var signInButton: Button
+    private lateinit var signUpButton: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,10 +27,10 @@ class EmailPasswordActivity : Activity() {
         // Check if the user is already logged in
         checkUser()
 
-        val emailInput: EditText = findViewById(R.id.emailInput)
-        val passwordInput: EditText = findViewById(R.id.passwordInput)
-        val signInButton: Button = findViewById(R.id.signInButton)
-        val signUpButton: Button = findViewById(R.id.signUpButton)
+        emailInput = findViewById(R.id.emailInput)
+        passwordInput = findViewById(R.id.passwordInput)
+        signInButton = findViewById(R.id.signInButton)
+        signUpButton = findViewById(R.id.signUpButton)
 
         // Sign-In Logic
         signInButton.setOnClickListener {
