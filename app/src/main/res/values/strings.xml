@@ -45,4 +45,7 @@
     <string name="comment">Comment</string>
     <string name="like">Like</string>
     <string name="add_a_comment">Add a comment...</string>
+    <string name="post">post</string>
+    <string name="username">Username</string>
+    <string name="_12_01_2024_10_00">12/01/2024 10:00</string>
 </resources>

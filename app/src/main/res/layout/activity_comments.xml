@@ -1,10 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:paddingTop="20dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="20dp">
 
+    <!-- Top Section with Back Button and Location Name -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/back_arrow"
+            android:contentDescription="@string/back_to_home"
+            android:padding="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <TextView
+            android:id="@+id/locationNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:autoSizeTextType="uniform"
+            android:text="@string/comment"
+            android:textSize="35sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/back_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginStart="16dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- RecyclerView for displaying comments -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/comments_recycler_view"
         android:layout_width="match_parent"
@@ -12,22 +48,32 @@
         android:layout_weight="1"
         android:padding="8dp" />
 
+    <!-- Input area for adding a comment -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:padding="8dp">
 
+        <!-- EditText for entering a comment -->
         <EditText
             android:id="@+id/comment_input"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:hint="@string/add_a_comment" />
+            android:hint="@string/add_a_comment"
+            android:inputType="textCapSentences|textMultiLine"
+            android:maxLines="3"
+            android:scrollHorizontally="false"
+            android:padding="8dp" />
 
+        <!-- ImageButton for submitting a comment -->
         <ImageButton
             android:id="@+id/comment_submit_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_send" />
+            android:src="@android:drawable/ic_menu_send"
+            android:contentDescription="@string/post"
+            android:padding="8dp" />
     </LinearLayout>
 </LinearLayout>

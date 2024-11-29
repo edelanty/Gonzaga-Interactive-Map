@@ -165,6 +165,8 @@ class CommentRatingActivity : AppCompatActivity() {
     private fun comments() {
         val intent = Intent(this, CommentsActivity::class.java)
         intent.putExtra("locationName", locationName)
+        val userName = userNameTextView.text.toString()
+        intent.putExtra("userName", userName) // Pass userName to CommentsActivity
         startActivity(intent)
     }
 

@@ -5,8 +5,10 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.Query
 
 private const val PINS_COLLECTION = "pins"
+private const val COMMENTS_COLLECTION = "comments"
 
 class Firebase {
     //Initialize Firestore
@@ -240,6 +242,84 @@ class Firebase {
             .addOnFailureListener { e ->
                 Log.w("Firebase", "Error deleting document", e)
                 onComplete(false)
+            }
+    }
+
+
+    // Function to add a comment to a specific pin
+    fun addComment(
+        pinName: String,
+        userName: String,
+        content: String,
+        callback: (Boolean) -> Unit
+    ) {
+        val commentData = hashMapOf(
+            "userName" to userName,
+            "content" to content,
+            "timestamp" to System.currentTimeMillis() // Unix timestamp for sorting
+        )
+
+        db.collection(PINS_COLLECTION).document(pinName)
+            .collection(COMMENTS_COLLECTION)
+            .add(commentData)
+            .addOnSuccessListener {
+                Log.d("Firebase", "Comment added for pin: $pinName")
+                callback(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firebase", "Error adding comment for pin: $pinName", e)
+                callback(false)
+            }
+    }
+
+    // Function to retrieve all comments for a specific pin
+    fun getComments(pinName: String, onComplete: (List<Map<String, Any>>) -> Unit) {
+        db.collection(PINS_COLLECTION).document(pinName)
+            .collection(COMMENTS_COLLECTION)
+            .orderBy("timestamp", Query.Direction.ASCENDING) // Sort by time, oldest to newest
+            .get()
+            .addOnSuccessListener { result ->
+                val comments = result.documents.mapNotNull { it.data }
+                onComplete(comments)
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firebase", "Error retrieving comments for pin: $pinName", e)
+                onComplete(emptyList())
+            }
+    }
+
+    // Function to listen for real-time updates to comments for a specific pin
+    fun listenForComments(pinName: String, onCommentUpdate: (List<Map<String, Any>>) -> Unit) {
+        db.collection(PINS_COLLECTION).document(pinName)
+            .collection(COMMENTS_COLLECTION)
+            .orderBy("timestamp", Query.Direction.ASCENDING)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    Log.e("Firebase", "Error listening for comments: ", error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && !snapshot.isEmpty) {
+                    val comments = snapshot.documents.mapNotNull { it.data }
+                    onCommentUpdate(comments)
+                } else {
+                    onCommentUpdate(emptyList())
+                }
+            }
+    }
+
+    // Function to delete a specific comment by its document ID
+    fun deleteComment(pinName: String, commentId: String, callback: (Boolean) -> Unit) {
+        db.collection(PINS_COLLECTION).document(pinName)
+            .collection(COMMENTS_COLLECTION).document(commentId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("Firebase", "Comment deleted for pin: $pinName")
+                callback(true)
+            }
+            .addOnFailureListener { e ->
+                Log.e("Firebase", "Error deleting comment for pin: $pinName", e)
+                callback(false)
             }
     }
 }
