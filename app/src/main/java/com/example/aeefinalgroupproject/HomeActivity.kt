@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.android.material.navigation.NavigationView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 
@@ -297,6 +298,20 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         }
     }
 
+    // used to register commentRatingActivity for a callback to see if pin deleted
+    private val commentRatingLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == RESULT_OK) {
+            val data = result.data
+            val deletedPinName = data?.getStringExtra("deletedPinName")
+            if (deletedPinName != null) {
+                // Refresh the map to reflect the deletion
+                refreshPins()
+            }
+        }
+    }
+
     private fun setupPinListeners(mMap: GoogleMap) {
         //Long Press to add a pin
         mMap.setOnMapLongClickListener { latLng ->
@@ -307,9 +322,17 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         mMap.setOnMarkerClickListener { marker ->
             val intent = Intent(this, CommentRatingActivity::class.java)
             intent.putExtra("locationName", marker.title)
-            startActivity(intent)
+            commentRatingLauncher.launch(intent)
             true
         }
+    }
+
+    // for deletion of pins
+    private fun refreshPins() {
+        // Logic to reload the pins on the map
+        mMap.clear()
+        drawRestrictedShape(mMap)
+        loadPins(mMap)
     }
 
     private fun showAddPinDialog(latLng: LatLng) {

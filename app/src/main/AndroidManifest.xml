@@ -13,6 +13,9 @@
         android:theme="@style/Theme.AEEFinalGroupProject"
         tools:targetApi="31">
         <activity
+            android:name=".CommentsActivity"
+            android:exported="false" />
+        <activity
             android:name=".CommentRatingActivity"
             android:exported="false" />
         <activity
@@ -52,11 +55,13 @@
         <activity
             android:name=".HomeActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".MainActivity"

@@ -1,6 +1,7 @@
 package com.example.aeefinalgroupproject
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.ImageButton
@@ -99,15 +100,18 @@ class CommentRatingActivity : AppCompatActivity() {
             deletePin(object : DeletePinCallback {
                 override fun onPinDeleted(success: Boolean) {
                     if (success) {
-                        //Goes back to HomeActivity
+                        // Notify the HomeActivity about the deletion
+                        val resultIntent = Intent()
+                        resultIntent.putExtra("deletedPinName", locationName)
+                        setResult(RESULT_OK, resultIntent)
+
+                        // Close the CommentRatingActivity
                         finish()
+                    } else {
+                        Toast.makeText(this@CommentRatingActivity, "Failed to delete pin", Toast.LENGTH_SHORT).show()
                     }
                 }
             })
-            //TODO there is a bug where the marker remains on the map, I've tried fixing but we are probably going to have to pass
-            //in the locationName through the intent to get to this activity, remove the marker before we go here, and then if there is no
-            //deletion, query all the information about that locationName marker and add it back to the map before we return... (I don't want to do this right now)
-            //TODO ETHAN DANITZ DO THIS...
         }
     }
 
@@ -159,7 +163,9 @@ class CommentRatingActivity : AppCompatActivity() {
 
     //TODO comments
     private fun comments() {
-
+        val intent = Intent(this, CommentsActivity::class.java)
+        intent.putExtra("locationName", locationName)
+        startActivity(intent)
     }
 
     //Switches the UI depending on liked or disliked
