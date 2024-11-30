@@ -5,6 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@drawable/gu_backscreen"
     android:padding="16dp">
 
     <!-- Top Section with Back Button and Location Name -->
@@ -33,7 +34,8 @@
         android:layout_height="wrap_content"
         android:hint="@string/email"
         android:inputType="textEmailAddress"
-        android:layout_marginBottom="8dp" />
+        android:layout_marginBottom="8dp"
+        android:background="@color/material_dynamic_neutral_variant90"/>
 
     <!-- Password Input -->
     <EditText
@@ -42,7 +44,8 @@
         android:layout_height="wrap_content"
         android:hint="@string/password"
         android:inputType="textPassword"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:background="@color/material_dynamic_neutral_variant90"/>
 
     <!-- Sign-In Button -->
     <Button

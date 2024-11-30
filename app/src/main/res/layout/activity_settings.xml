@@ -47,6 +47,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent">
 
+        <!-- Label for notifications toggle -->
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -54,6 +55,12 @@
             android:text="@string/enable_notifications"
             android:textSize="18sp" />
 
+        <!-- CheckBox for enabling/disabling notifications -->
+        <CheckBox
+            android:id="@+id/notifications_checkbox"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
     </LinearLayout>
 
     <!-- Theme Selection -->
