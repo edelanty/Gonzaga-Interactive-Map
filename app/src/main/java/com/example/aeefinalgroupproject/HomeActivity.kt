@@ -133,6 +133,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 return true
             }
             R.id.nav_settings -> {
+                val intent = Intent(this, Settings::class.java)
+                startActivity(intent)
+                finish()
                 return true
             }
             R.id.nav_logout -> {

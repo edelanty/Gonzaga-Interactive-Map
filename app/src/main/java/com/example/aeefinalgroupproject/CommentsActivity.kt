@@ -1,5 +1,6 @@
 package com.example.aeefinalgroupproject
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -23,6 +24,7 @@ class CommentsActivity : AppCompatActivity() {
     private val commentsList = mutableListOf<Comment>() // Using the Comment data class
     private lateinit var backButton: ImageButton
     private val firebase = Firebase()
+    private var commentCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +45,9 @@ class CommentsActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         backButton.setOnClickListener {
-            finish()
+            val intent = Intent(this, CommentRatingActivity::class.java)
+            intent.putExtra("commentCount", commentCount)
+            startActivity(intent)
         }
 
         // Fetch and listen for real-time comment updates
@@ -59,6 +63,7 @@ class CommentsActivity : AppCompatActivity() {
 
                 // Ensure the required fields are not null
                 if (userName != null && content != null && timestamp != null) {
+                    commentCount++
                     Comment(userName, content, timestamp)
                 } else {
                     null
@@ -85,6 +90,7 @@ class CommentsActivity : AppCompatActivity() {
                 if (success) {
                     Toast.makeText(this, "Comment added", Toast.LENGTH_SHORT).show()
                     commentInput.text.clear()
+                    commentCount++
                 } else {
                     Toast.makeText(this, "Failed to add comment", Toast.LENGTH_SHORT).show()
                 }

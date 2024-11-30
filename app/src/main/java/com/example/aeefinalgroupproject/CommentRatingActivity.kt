@@ -113,6 +113,12 @@ class CommentRatingActivity : AppCompatActivity() {
                 }
             })
         }
+
+
+        val count = intent.getIntExtra("commentCount", -1)
+        if(count != -1) {
+            likeCountTextView.text = count.toString()
+        }
     }
 
     private fun liked() {

@@ -53,4 +53,6 @@
     <string name="log_in">Log In</string>
     <string name="sign_up">Sign Up</string>
     <string name="gu_interactive_map">GU Interactive Map</string>
+    <string name="enable_notifications">Enable Notifications</string>
+    <string name="pin_style">Pin Style</string>
 </resources>
