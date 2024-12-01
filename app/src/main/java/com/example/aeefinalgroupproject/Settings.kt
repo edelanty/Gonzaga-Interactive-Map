@@ -54,7 +54,7 @@ class Settings : AppCompatActivity() {
      * Handles the spinner setup for selecting pin styles.
      */
     private fun setupSpinner() {
-        val pinStyles = listOf("Default", "Style 1", "Style 2")
+        val pinStyles = listOf("Default", "Thin", "Full")
         val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, pinStyles)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner.adapter = adapter

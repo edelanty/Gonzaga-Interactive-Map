@@ -3,6 +3,7 @@ package com.example.aeefinalgroupproject
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -28,6 +29,11 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import androidx.core.content.ContextCompat
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -39,6 +45,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var actionBarDrawerToggle: ActionBarDrawerToggle
     private lateinit var navigationHeaderUserName: TextView
     private lateinit var navigationView: NavigationView
+    private var pinStyle = 0
 
     private val firebase = Firebase()
     private lateinit var auth: FirebaseAuth
@@ -237,8 +244,30 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         //Zoom in on location
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(gonzaga, 16f))
 
+        // Retrieve the pin style from SharedPreferences
+        pinStyle = getPinStyleFromPreferences()
+
         //load pins type s
         loadPins(mMap)
+    }
+
+    private fun getPinStyleFromPreferences(): Int {
+        val sharedPreferences: SharedPreferences = getSharedPreferences("SettingsPreferences", Context.MODE_PRIVATE)
+        return sharedPreferences.getInt("pinStyle", 0)  // Default is 0 (Default Pin Style)
+    }
+
+    private fun getMarkerIconFromDrawable(drawableId: Int, width: Int, height: Int): BitmapDescriptor {
+        val drawable = ContextCompat.getDrawable(this, drawableId) ?: return BitmapDescriptorFactory.defaultMarker()
+        val bitmap = Bitmap.createBitmap(drawable.intrinsicWidth, drawable.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        drawable.setBounds(0, 0, canvas.width, canvas.height)
+        drawable.draw(canvas)
+
+        // Scale the bitmap to the desired width and height
+        val scaledBitmap = Bitmap.createScaledBitmap(bitmap, width, height, false)
+
+        // Return a BitmapDescriptor created from the scaled bitmap
+        return BitmapDescriptorFactory.fromBitmap(scaledBitmap)
     }
 
     private fun filterPins(mMap: GoogleMap) {
@@ -268,8 +297,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
                 //Only add the pins with the correct filters
                 if ((isFoodChecked && isPinFoodSpot || !isFoodChecked) && (isStudySpotsChecked && isPinStudySpot || !isStudySpotsChecked) && (isClassroomsChecked && isPinClassroomSpot || !isClassroomsChecked)) {
+                    // Set marker icon based on the selected pin style
+                    val markerIcon = when (pinStyle) {
+                        1 -> getMarkerIconFromDrawable(R.drawable.pin, 80, 80)  // Pin Style
+                        2 -> getMarkerIconFromDrawable(R.drawable.full_pin, 80, 80)  // Circle Style
+                        else -> getMarkerIconFromDrawable(R.drawable.default_pin, 80, 80)  // Default Style
+                    }
                     mMap.addMarker(
-                        MarkerOptions().position(latLng).title(locationName).snippet(description)
+                        MarkerOptions().position(latLng).title(locationName).snippet(description).icon(markerIcon)
                     )
                 }
             }
@@ -293,9 +328,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
                 val latLng = LatLng(latitude, longitude)
 
-                //Add the pin to the map
+                // Set marker icon based on the selected pin style
+                val markerIcon = when (pinStyle) {
+                    1 -> getMarkerIconFromDrawable(R.drawable.pin, 80, 80)  // Pin Style
+                    2 -> getMarkerIconFromDrawable(R.drawable.full_pin, 80, 80)  // Circle Style
+                    else -> getMarkerIconFromDrawable(R.drawable.default_pin, 80, 80)  // Default Style
+                }
                 mMap.addMarker(
-                    MarkerOptions().position(latLng).title(locationName).snippet(description)
+                    MarkerOptions().position(latLng).title(locationName).snippet(description).icon(markerIcon)
                 )
             }
         }
@@ -369,9 +409,14 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 return@setPositiveButton
             }
 
-            //Adding marker to the map
+            // Set marker icon based on the selected pin style
+            val markerIcon = when (pinStyle) {
+                1 -> getMarkerIconFromDrawable(R.drawable.pin, 80, 80)  // Pin Style
+                2 -> getMarkerIconFromDrawable(R.drawable.full_pin, 80, 80)  // Circle Style
+                else -> getMarkerIconFromDrawable(R.drawable.default_pin, 80, 80)  // Default Style
+            }
             mMap.addMarker(
-                MarkerOptions().position(latLng).title(locationName).snippet(description)
+                MarkerOptions().position(latLng).title(locationName).snippet(description).icon(markerIcon)
             )
 
             //Getting the UID for later logic (deletion)
