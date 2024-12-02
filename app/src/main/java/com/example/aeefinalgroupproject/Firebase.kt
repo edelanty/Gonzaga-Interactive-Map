@@ -249,12 +249,12 @@ class Firebase {
     // Function to add a comment to a specific pin
     fun addComment(
         pinName: String,
-        userName: String,
+        username: String,
         content: String,
         callback: (Boolean) -> Unit
     ) {
         val commentData = hashMapOf(
-            "userName" to userName,
+            "username" to username,
             "content" to content,
             "timestamp" to System.currentTimeMillis() // Unix timestamp for sorting
         )
@@ -271,6 +271,24 @@ class Firebase {
                 callback(false)
             }
     }
+
+    // Function to increment comment count
+    fun incrementCommentCount(pinName: String, callback: (Boolean) -> Unit) {
+        val pinRef = db.collection(PINS_COLLECTION).document(pinName)
+
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(pinRef)
+            val currentCommentCount = snapshot.getLong("commentCount") ?: 0
+            transaction.update(pinRef, "commentCount", currentCommentCount + 1)
+        }.addOnSuccessListener {
+            Log.d("Firebase", "Comment count incremented for pin: $pinName")
+            callback(true)
+        }.addOnFailureListener { e ->
+            Log.e("Firebase", "Failed to increment comment count for pin: $pinName", e)
+            callback(false)
+        }
+    }
+
 
     // Function to retrieve all comments for a specific pin
     fun getComments(pinName: String, onComplete: (List<Map<String, Any>>) -> Unit) {
