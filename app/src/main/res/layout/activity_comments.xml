@@ -30,7 +30,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:autoSizeTextType="uniform"
-            android:text="@string/comment"
+            android:text="@string/comments"
             android:textSize="35sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"

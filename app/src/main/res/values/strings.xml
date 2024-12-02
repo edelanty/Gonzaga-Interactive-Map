@@ -55,4 +55,5 @@
     <string name="gu_interactive_map">GU Interactive Map</string>
     <string name="enable_notifications">Enable Notifications</string>
     <string name="pin_style">Pin Style</string>
+    <string name="comments">Comments:</string>
 </resources>
