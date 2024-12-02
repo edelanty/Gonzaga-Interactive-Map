@@ -30,6 +30,16 @@
         android:orientation="vertical"
         android:gravity="center">
 
+        <!-- Enter Username -->
+        <EditText
+            android:id="@+id/username_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/username"
+            android:inputType="text"
+            android:layout_marginBottom="8dp"
+            android:background="@color/material_dynamic_neutral_variant90" />
+
         <!-- Email Input -->
         <EditText
             android:id="@+id/emailInput"

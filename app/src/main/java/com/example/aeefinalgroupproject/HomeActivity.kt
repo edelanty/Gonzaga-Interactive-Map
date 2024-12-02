@@ -34,6 +34,7 @@ import android.graphics.Canvas
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
@@ -46,6 +47,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var navigationHeaderUserName: TextView
     private lateinit var navigationView: NavigationView
     private var pinStyle = 0
+    private var currentUsername = "Guest"
 
     private val firebase = Firebase()
     private lateinit var auth: FirebaseAuth
@@ -123,13 +125,29 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         //Find the TextView within the header layout
         navigationHeaderUserName = headerView.findViewById(R.id.user_name_header)
 
-        var userName = auth.currentUser?.email
+        val currentUser = auth.currentUser
 
-        //Just get the name from the email
-        userName = userName?.substringBefore("@")
-        userName = userName?.replaceFirstChar { it.uppercaseChar() }
+        // Check if the user is logged in
+        if (currentUser != null) {
+            val userId = currentUser.uid
 
-        navigationHeaderUserName.text = userName
+            // Reference to the Firebase Firestore or Realtime Database
+            val db = FirebaseFirestore.getInstance()  // Firestore instance (or FirebaseDatabase if using Realtime Database)
+            val userRef = db.collection("users").document(userId)  // Assuming you're storing usernames in a 'users' collection
+
+            // Fetch the username from Firestore
+            userRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    currentUsername =
+                        document.getString("username").toString()  // Assuming 'username' field in Firestore
+                    navigationHeaderUserName.text = currentUsername // Default to guest if username is null
+                } else {
+                    Log.d("Firebase", "User not found in database.")
+                }
+            }.addOnFailureListener { exception ->
+                Log.d("Firebase", "Error fetching user data", exception)
+            }
+        }
     }
 
     // Navigation menu options
@@ -421,7 +439,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
             //Getting the UID for later logic (deletion)
             val userIdString = auth.currentUser?.uid.toString()
-            val userName = auth.currentUser?.email.toString()
+            val userName = navigationHeaderUserName.text.toString()
 
             //Creating a hash map of all the related pin data to send to firebase
             val pinData = hashMapOf(

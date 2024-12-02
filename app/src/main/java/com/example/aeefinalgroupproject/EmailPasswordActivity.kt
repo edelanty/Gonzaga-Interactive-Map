@@ -8,12 +8,15 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class EmailPasswordActivity : Activity() {
 
     private lateinit var auth: FirebaseAuth
+    private lateinit var firestore: FirebaseFirestore
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
+    private lateinit var usernameInput: EditText
     private lateinit var signInButton: Button
     private lateinit var signUpButton: Button
 
@@ -21,14 +24,16 @@ class EmailPasswordActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.signin_activity)
 
-        // Initialize Firebase Auth
+        // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance()
+        firestore = FirebaseFirestore.getInstance()
 
         // Check if the user is already logged in
         checkUser()
 
         emailInput = findViewById(R.id.emailInput)
         passwordInput = findViewById(R.id.passwordInput)
+        usernameInput = findViewById(R.id.username_edit_text)
         signInButton = findViewById(R.id.signInButton)
         signUpButton = findViewById(R.id.signUpButton)
 
@@ -48,11 +53,12 @@ class EmailPasswordActivity : Activity() {
         signUpButton.setOnClickListener {
             val email = emailInput.text.toString().trim()
             val password = passwordInput.text.toString().trim()
+            val username = usernameInput.text.toString().trim()
 
-            if (email.isNotEmpty() && password.isNotEmpty()) {
-                signUpUser(email, password)
+            if (email.isNotEmpty() && password.isNotEmpty() && username.isNotEmpty()) {
+                signUpUser(email, password, username)
             } else {
-                Toast.makeText(this, "Please fill in both fields", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -62,20 +68,20 @@ class EmailPasswordActivity : Activity() {
         val currentUser = auth.currentUser
         if (currentUser != null) {
             Log.d("FirebaseAuth", "User already logged in: ${currentUser.email}")
-            // Navigate to HomeActivity
             navigateToHome()
         } else {
             Log.d("FirebaseAuth", "No user logged in")
         }
     }
 
-    private fun signUpUser(email: String, password: String) {
+    private fun signUpUser(email: String, password: String, username: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    Log.d("FirebaseAuth", "User created: ${auth.currentUser?.email}")
-                    Toast.makeText(this, "Sign-up successful!", Toast.LENGTH_SHORT).show()
-                    navigateToHome()
+                    val userId = auth.currentUser?.uid
+                    if (userId != null) {
+                        saveUserToDatabase(userId, email, username)
+                    }
                 } else {
                     Log.e("FirebaseAuth", "Sign-up failed: ${task.exception?.message}")
                     Toast.makeText(this, "Sign-up failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
@@ -88,13 +94,55 @@ class EmailPasswordActivity : Activity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     Log.d("FirebaseAuth", "User signed in: ${auth.currentUser?.email}")
-                    Toast.makeText(this, "Sign-in successful!", Toast.LENGTH_SHORT).show()
-                    navigateToHome()
+                    fetchUsernameAndNavigate()
                 } else {
                     Log.e("FirebaseAuth", "Sign-in failed: ${task.exception?.message}")
                     Toast.makeText(this, "Sign-in failed: ${task.exception?.message}", Toast.LENGTH_SHORT).show()
                 }
             }
+    }
+
+    private fun saveUserToDatabase(userId: String, email: String, username: String) {
+        val userMap = mapOf(
+            "email" to email,
+            "username" to username
+        )
+
+        firestore.collection("users").document(userId)
+            .set(userMap)
+            .addOnSuccessListener {
+                Log.d("FirebaseAuth", "User information saved successfully")
+                Toast.makeText(this, "Sign-up successful!", Toast.LENGTH_SHORT).show()
+                navigateToHome()
+            }
+            .addOnFailureListener { e ->
+                Log.e("FirebaseAuth", "Error saving user information: ${e.message}")
+                Toast.makeText(this, "Failed to save user information", Toast.LENGTH_SHORT).show()
+            }
+    }
+
+    private fun fetchUsernameAndNavigate() {
+        val userId = auth.currentUser?.uid
+        if (userId != null) {
+            firestore.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener { document ->
+                    if (document != null && document.exists()) {
+                        val username = document.getString("username")
+                        Log.d("FirebaseAuth", "Fetched username: $username")
+                        val intent = Intent(this, HomeActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        Log.e("FirebaseAuth", "No username found for user")
+                        Toast.makeText(this, "Failed to fetch username", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .addOnFailureListener { e ->
+                    Log.e("FirebaseAuth", "Error fetching username: ${e.message}")
+                    Toast.makeText(this, "Error fetching user information", Toast.LENGTH_SHORT).show()
+                }
+        }
     }
 
     private fun navigateToHome() {
