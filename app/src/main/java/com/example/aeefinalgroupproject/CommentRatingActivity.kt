@@ -171,8 +171,6 @@ class CommentRatingActivity : AppCompatActivity() {
     private fun comments() {
         val intent = Intent(this, CommentsActivity::class.java)
         intent.putExtra("locationName", locationName)
-        val userName = userNameTextView.text.toString()
-        intent.putExtra("userName", userName) // Pass userName to CommentsActivity
         startActivity(intent)
     }
 
@@ -291,14 +289,10 @@ class CommentRatingActivity : AppCompatActivity() {
             if (pinData != null) {
                 val description = pinData["description"] as? String
                 val rating = pinData["rating"] as? Double ?: 0.0
-                var userName = pinData["userName"] as? String
+                val userName = pinData["userName"] as? String
                 val likeCount = pinData["likeCount"] as? Number
                 val dislikeCount = pinData["dislikeCount"] as? Number
                 val commentCount = pinData["commentCount"] as? Number
-
-                //Just get the name from the email
-                userName = userName?.substringBefore("@")
-                userName = userName?.replaceFirstChar { it.uppercaseChar() }
 
                 //Update the view with the retrieved data
                 userNameTextView.text = "$userName left this pin!"
@@ -313,5 +307,10 @@ class CommentRatingActivity : AppCompatActivity() {
                 Log.e("Firebase", "Failed to fetch pin data")
             }
         }
+    }
+    // Refresh the data when returning from comments activity
+    override fun onResume() {
+        super.onResume()
+        updateView()
     }
 }

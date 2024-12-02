@@ -1,7 +1,7 @@
 package com.example.aeefinalgroupproject
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.EditText
@@ -12,6 +12,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -24,20 +26,18 @@ class CommentsActivity : AppCompatActivity() {
     private val commentsList = mutableListOf<Comment>() // Using the Comment data class
     private lateinit var backButton: ImageButton
     private val firebase = Firebase()
-    private var commentCount = 0
+    private lateinit var username: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_comments)
 
-        // Retrieve locationName and userName from Intent
+        // Retrieve locationName from Intent
         val locationName = intent.getStringExtra("locationName")!!
-        val userName = intent.getStringExtra("userName") ?: "Anonymous"
 
         recyclerView = findViewById(R.id.comments_recycler_view)
         commentInput = findViewById(R.id.comment_input)
         submitButton = findViewById(R.id.comment_submit_button)
-
         backButton = findViewById(R.id.back_button)
 
         commentsAdapter = CommentsAdapter(commentsList)
@@ -45,9 +45,27 @@ class CommentsActivity : AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
 
         backButton.setOnClickListener {
-            val intent = Intent(this, CommentRatingActivity::class.java)
-            intent.putExtra("commentCount", commentCount)
-            startActivity(intent)
+            finish()
+        }
+
+        // Fetch the current logged-in user's username from Firebase Firestore
+        val currentUser = FirebaseAuth.getInstance().currentUser
+        currentUser?.let {
+            val userIdString = it.uid
+            val db = FirebaseFirestore.getInstance()
+            val userRef = db.collection("users").document(userIdString)
+
+            userRef.get().addOnSuccessListener { document ->
+                if (document.exists()) {
+                    username = document.getString("username") ?: "Anonymous"
+                } else {
+                    username = "Anonymous" // If no username found, use default
+                }
+            }.addOnFailureListener {
+                // Handle failure if needed
+                Toast.makeText(this, "Failed to load username", Toast.LENGTH_SHORT).show()
+                username = "Anonymous"
+            }
         }
 
         // Fetch and listen for real-time comment updates
@@ -57,14 +75,13 @@ class CommentsActivity : AppCompatActivity() {
 
             // Map each comment (map) to a Comment object
             val mappedComments = updatedComments.mapNotNull { commentMap ->
-                val userName = commentMap["userName"] as? String
                 val content = commentMap["content"] as? String
                 val timestamp = commentMap["timestamp"] as? Long
+                val username = commentMap["username"] as? String ?: "Anonymous" // Get the username from Firebase data
 
                 // Ensure the required fields are not null
-                if (userName != null && content != null && timestamp != null) {
-                    commentCount++
-                    Comment(userName, content, timestamp)
+                if (content != null && timestamp != null) {
+                    Comment(username, content, timestamp)
                 } else {
                     null
                 }
@@ -77,7 +94,6 @@ class CommentsActivity : AppCompatActivity() {
             commentsAdapter.notifyDataSetChanged()
         }
 
-
         // Submit a new comment
         submitButton.setOnClickListener {
             val content = commentInput.text.toString().trim()
@@ -86,11 +102,18 @@ class CommentsActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            firebase.addComment(locationName, userName, content) { success ->
+            // Use the logged-in username for the new comment
+            firebase.addComment(locationName, username, content) { success ->
                 if (success) {
-                    Toast.makeText(this, "Comment added", Toast.LENGTH_SHORT).show()
-                    commentInput.text.clear()
-                    commentCount++
+                    // Increment the comment count in the database
+                    firebase.incrementCommentCount(locationName) { incrementSuccess ->
+                        if (incrementSuccess) {
+                            Toast.makeText(this, "Comment added", Toast.LENGTH_SHORT).show()
+                            commentInput.text.clear()
+                        } else {
+                            Toast.makeText(this, "Failed to update comment count", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 } else {
                     Toast.makeText(this, "Failed to add comment", Toast.LENGTH_SHORT).show()
                 }
@@ -100,7 +123,7 @@ class CommentsActivity : AppCompatActivity() {
 }
 
 data class Comment(
-    val userName: String,
+    val username: String,
     val content: String,
     val timestamp: Long
 )
@@ -114,7 +137,7 @@ class CommentsAdapter(private val commentsList: List<Comment>) : RecyclerView.Ad
 
     override fun onBindViewHolder(holder: CommentViewHolder, position: Int) {
         val comment = commentsList[position]
-        holder.userNameTextView.text = comment.userName
+        holder.userNameTextView.text = comment.username
         holder.contentTextView.text = comment.content
         // Format the timestamp if needed
         val timestamp = SimpleDateFormat("MM/dd/yyyy HH:mm", Locale.getDefault()).format(Date(comment.timestamp))
@@ -131,4 +154,3 @@ class CommentsAdapter(private val commentsList: List<Comment>) : RecyclerView.Ad
         val timestampTextView: TextView = itemView.findViewById(R.id.timestampTextView)
     }
 }
-

@@ -65,7 +65,8 @@
             android:inputType="textCapSentences|textMultiLine"
             android:maxLines="3"
             android:scrollHorizontally="false"
-            android:padding="8dp" />
+            android:padding="12dp"
+            android:layout_marginBottom="36dp"/>
 
         <!-- ImageButton for submitting a comment -->
         <ImageButton
