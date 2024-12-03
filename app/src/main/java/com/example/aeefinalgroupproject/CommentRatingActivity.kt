@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.bumptech.glide.Glide
 
 class CommentRatingActivity : AppCompatActivity() {
     private var isFavorited = false
@@ -287,6 +289,7 @@ class CommentRatingActivity : AppCompatActivity() {
     private fun updateView() {
         firebase.getPin(locationName) { pinData ->
             if (pinData != null) {
+                val imageUrl = pinData["imageUrl"] as? String
                 val description = pinData["description"] as? String
                 val rating = pinData["rating"] as? Double ?: 0.0
                 val userName = pinData["userName"] as? String
@@ -303,6 +306,11 @@ class CommentRatingActivity : AppCompatActivity() {
                 likeCountTextView.text = likeCount.toString()
                 dislikeCountTextView.text = dislikeCount.toString()
                 commentCountTextView.text = commentCount.toString()
+
+                if (!imageUrl.isNullOrEmpty()) {
+                    Glide.with(this).load(imageUrl).into(locationImageView)
+                    locationImageView.visibility = View.VISIBLE
+                }
             } else {
                 Log.e("Firebase", "Failed to fetch pin data")
             }

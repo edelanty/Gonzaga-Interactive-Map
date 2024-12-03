@@ -31,11 +31,18 @@ import androidx.appcompat.app.AppCompatActivity
 import com.google.firebase.auth.FirebaseAuth
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
+import android.view.View
+import android.widget.ImageView
+import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.firebase.firestore.FirebaseFirestore
-
+import com.google.firebase.storage.FirebaseStorage
+import java.util.UUID
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 
 class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnNavigationItemSelectedListener {
     private lateinit var mMap: GoogleMap
@@ -48,9 +55,12 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var navigationView: NavigationView
     private var pinStyle = 0
     private var currentUsername = "Guest"
-
+    private var selectedImageUri: Uri? = null
+    private lateinit var imagePickerLauncher: ActivityResultLauncher<Intent>
     private val firebase = Firebase()
     private lateinit var auth: FirebaseAuth
+    private lateinit var currentImagePreview: ImageView
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,6 +69,24 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         // Login
         // Initialize Firebase Auth
         auth = FirebaseAuth.getInstance()
+
+        // Firebase app check for image
+        val firebaseAppCheck = FirebaseAppCheck.getInstance()
+        firebaseAppCheck.installAppCheckProviderFactory(PlayIntegrityAppCheckProviderFactory.getInstance())
+
+        // Add Image Launcher
+        imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            result ->
+            if (result.resultCode == RESULT_OK && result.data != null) {
+                selectedImageUri = result.data?.data
+                // Image uri
+                currentImagePreview.setImageURI(selectedImageUri)
+                currentImagePreview.visibility = View.VISIBLE
+                Toast.makeText(this, "Image selected success", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "Didn't select image", Toast.LENGTH_SHORT).show()
+            }
+        }
 
         // Ensure only logged-in users can access this activity
         checkUser()
@@ -396,6 +424,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         loadPins(mMap)
     }
 
+    // Add pin dialog box
     private fun showAddPinDialog(latLng: LatLng) {
         val dialogBuilder = AlertDialog.Builder(this)
         val dialogView = layoutInflater.inflate(R.layout.dialog_add_pin, null)
@@ -407,6 +436,20 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val foodCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_food)
         val studySpotCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_study_spot)
         val classroomCheckBox = dialogView.findViewById<CheckBox>(R.id.checkbox_classroom)
+        val selectImageButton = dialogView.findViewById<Button>(R.id.select_image_button)
+
+        // Image uri
+        selectedImageUri = null
+        val imagePreview = dialogView.findViewById<ImageView>(R.id.image_preview)
+        currentImagePreview = dialogView.findViewById<ImageView>(R.id.image_preview)
+        currentImagePreview.visibility = View.GONE
+        imagePreview.visibility = View.GONE
+
+        // Image button
+        selectImageButton.setOnClickListener{
+            val intent = Intent(Intent.ACTION_PICK).apply { type = "image/*" }
+            imagePickerLauncher.launch(intent)
+        }
 
         if (!markerIsInValidRange(latLng)) {
             Toast.makeText(this, "Invalid Pin", Toast.LENGTH_LONG).show()
@@ -427,6 +470,15 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 return@setPositiveButton
             }
 
+            // Check for selected image
+            if (selectedImageUri != null) {
+                uploadImageToFirebase(selectedImageUri!!) {imageUrl ->
+                    savePinToFirebase(latLng, locationName, description, rating, foodFilter, studySpotFilter, classroomFilter, imageUrl)
+                }
+            } else {
+                savePinToFirebase(latLng, locationName, description, rating, foodFilter, studySpotFilter, classroomFilter, null)
+            }
+
             // Set marker icon based on the selected pin style
             val markerIcon = when (pinStyle) {
                 1 -> getMarkerIconFromDrawable(R.drawable.pin, 80, 80)  // Pin Style
@@ -437,12 +489,61 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 MarkerOptions().position(latLng).title(locationName).snippet(description).icon(markerIcon)
             )
 
-            //Getting the UID for later logic (deletion)
-            val userIdString = auth.currentUser?.uid.toString()
-            val userName = navigationHeaderUserName.text.toString()
+//            //Getting the UID for later logic (deletion)
+//            val userIdString = auth.currentUser?.uid.toString()
+//            val userName = navigationHeaderUserName.text.toString()
 
-            //Creating a hash map of all the related pin data to send to firebase
-            val pinData = hashMapOf(
+//            //Creating a hash map of all the related pin data to send to firebase
+//            val pinData = hashMapOf(
+//                "latitude" to latLng.latitude,
+//                "longitude" to latLng.longitude,
+//                "locationName" to locationName,
+//                "description" to description,
+//                "rating" to rating,
+//                "userId" to userIdString,
+//                "userName" to userName,
+//                "isFoodCheck" to foodFilter,
+//                "isStudySpot" to studySpotFilter,
+//                "isClassroom" to classroomFilter,
+//                "likeCount" to 0,
+//                "dislikeCount" to 0,
+//                "commentCount" to 0
+//            )
+//
+//            //Saving pin data to the database
+//            firebase.addGlobalPin(locationName, pinData)
+        }
+
+        dialogBuilder.setNegativeButton("Cancel", null)
+        dialogBuilder.create().show()
+    }
+
+    // Upload image to firebase to use in rating activity
+    private fun uploadImageToFirebase(imageUri: Uri, callback:(String?) -> Unit) {
+        val storageRef = FirebaseStorage.getInstance().reference
+        val imageRef = storageRef.child("pin_images/${UUID.randomUUID()}.jpg")
+        imageRef.putFile(imageUri)
+            .addOnSuccessListener { taskSnapshot ->
+                imageRef.downloadUrl.addOnSuccessListener { downloadUri ->
+                    callback(downloadUri.toString())
+                }.addOnFailureListener { exception ->
+                    Log.e("Firebase", "Failed to get download URL: ${exception.message}")
+                    Toast.makeText(this, "Failed to get image URL", Toast.LENGTH_SHORT).show()
+                    callback(null)
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("Firebase", "Failed to upload image: ${exception.message}")
+                Toast.makeText(this, "Failed to upload image", Toast.LENGTH_SHORT).show()
+                callback(null)
+            }
+    }
+
+    // Save pin to firebase with pin information
+    private fun savePinToFirebase(latLng: LatLng, locationName: String, description: String, rating: Float, foodFilter: Boolean, studySpotFilter: Boolean, classroomFilter: Boolean, imageUrl: String?) {
+        val userIdString = auth.currentUser?.uid.toString()
+        val userName = navigationHeaderUserName.text.toString()
+        val pinData = mapOf(
                 "latitude" to latLng.latitude,
                 "longitude" to latLng.longitude,
                 "locationName" to locationName,
@@ -455,15 +556,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
                 "isClassroom" to classroomFilter,
                 "likeCount" to 0,
                 "dislikeCount" to 0,
-                "commentCount" to 0
+                "commentCount" to 0,
+                "imageUrl" to (imageUrl?: "")
             )
-
-            //Saving pin data to the database
-            firebase.addGlobalPin(locationName, pinData)
-        }
-
-        dialogBuilder.setNegativeButton("Cancel", null)
-        dialogBuilder.create().show()
+        firebase.addGlobalPin(locationName, pinData)
     }
 
     //Determines if a long press is in the valid range of the campus

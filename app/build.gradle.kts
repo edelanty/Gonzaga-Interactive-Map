@@ -1,7 +1,6 @@
 plugins {
     id("com.android.application")
     id("com.google.gms.google-services")
-    //alias(libs.plugins.android.application) pretty sure we don't need this
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
 }
@@ -61,6 +60,12 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation(libs.play.services.maps)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.firebase.storage.ktx)
+    implementation("com.google.firebase:firebase-appcheck-playintegrity:18.0.0")
+    implementation("com.google.firebase:firebase-appcheck-safetynet:16.1.2")
+    implementation("com.google.firebase:firebase-appcheck:18.0.0")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
