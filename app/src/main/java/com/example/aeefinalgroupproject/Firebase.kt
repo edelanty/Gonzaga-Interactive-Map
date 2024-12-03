@@ -1,10 +1,12 @@
 package com.example.aeefinalgroupproject
 
+import android.content.Context
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.Query
 
 private const val PINS_COLLECTION = "pins"
@@ -14,6 +16,63 @@ class Firebase {
     //Initialize Firestore
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
+    private lateinit var notificationHelper: NotificationHelper
+
+    // Notifications
+    fun initializeNotifications(context: Context) {
+        notificationHelper = NotificationHelper(context)
+    }
+
+    fun listenForComments() {
+        val startListeningTime = System.currentTimeMillis()
+        val sentNotifications = mutableSetOf<String>()
+        FirebaseFirestore.getInstance()
+            .collection("pins")
+            .addSnapshotListener { pinsSnapshot, e ->
+                if (e != null) {
+                    Log.w("Firebase", "Listen failed.", e)
+                    return@addSnapshotListener
+                }
+                pinsSnapshot?.documents?.forEach { pinDoc ->
+                    val locationName = pinDoc.id
+
+                    pinDoc.reference.collection("comments")
+                        .addSnapshotListener { commentsSnapshot, commentError ->
+                            if (commentError != null) {
+                                Log.w("Firebase", "Comments listen failed.", commentError)
+                                return@addSnapshotListener
+                            }
+
+                            commentsSnapshot?.documentChanges?.forEach { change ->
+                                if (change.type == DocumentChange.Type.ADDED) {
+                                    val comment = change.document.data
+                                    val commentText = comment["content"] as? String ?: return@forEach
+                                    val username = comment["username"] as? String ?: "Anonymous"
+                                    val timestamp = comment["timestamp"] as? Long ?: return@forEach
+                                    val commentID = change.document.id
+                                    // Limits notifications to only occur during the current app session
+                                    if (timestamp > startListeningTime && sentNotifications.add(commentID)) {
+                                        checkAndNotify(locationName, commentText, username)
+                                    }
+                                }
+                            }
+                        }
+                }
+            }
+    }
+
+    private fun checkAndNotify(locationName: String, commentText: String, userName: String) {
+        getAllFavorites { favorites ->
+            favorites.forEach { favorite ->
+                if (favorite["locationName"] == locationName &&
+                    favorite["bellStatus"] == true &&
+                    favorite["isFavorite"] == true) {
+                    notificationHelper.showCommentNotification(locationName, commentText, userName)
+                }
+            }
+        }
+    }
+
 
     //Method to update a favorite used for deletion and setting notifications
     fun updateFavorite(locationName: String, updates: Map<String, Any>, callback: (Boolean) -> Unit) {

@@ -74,6 +74,10 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
         val firebaseAppCheck = FirebaseAppCheck.getInstance()
         firebaseAppCheck.installAppCheckProviderFactory(PlayIntegrityAppCheckProviderFactory.getInstance())
 
+        // Notifications
+        firebase.initializeNotifications(this)
+        firebase.listenForComments()
+
         // Add Image Launcher
         imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             result ->
@@ -488,30 +492,6 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             mMap.addMarker(
                 MarkerOptions().position(latLng).title(locationName).snippet(description).icon(markerIcon)
             )
-
-//            //Getting the UID for later logic (deletion)
-//            val userIdString = auth.currentUser?.uid.toString()
-//            val userName = navigationHeaderUserName.text.toString()
-
-//            //Creating a hash map of all the related pin data to send to firebase
-//            val pinData = hashMapOf(
-//                "latitude" to latLng.latitude,
-//                "longitude" to latLng.longitude,
-//                "locationName" to locationName,
-//                "description" to description,
-//                "rating" to rating,
-//                "userId" to userIdString,
-//                "userName" to userName,
-//                "isFoodCheck" to foodFilter,
-//                "isStudySpot" to studySpotFilter,
-//                "isClassroom" to classroomFilter,
-//                "likeCount" to 0,
-//                "dislikeCount" to 0,
-//                "commentCount" to 0
-//            )
-//
-//            //Saving pin data to the database
-//            firebase.addGlobalPin(locationName, pinData)
         }
 
         dialogBuilder.setNegativeButton("Cancel", null)
