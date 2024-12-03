@@ -19,22 +19,50 @@ class Firebase {
     private val db: FirebaseFirestore = Firebase.firestore
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var notificationHelper: NotificationHelper
+    private var currentUsername: String = "Unknown"
 
-    // Notifications
+    private fun setCurrentUsername(onComplete: () -> Unit) {
+        val currentUser = auth.currentUser
+
+        if (currentUser != null) {
+            val userId = currentUser.uid
+            val userRef = db.collection("users").document(userId)
+
+            userRef.get().addOnSuccessListener { document ->
+                currentUsername = document.getString("username") ?: "Anonymous"
+                onComplete()
+            }.addOnFailureListener { exception ->
+                Log.d("Firebase", "Error fetching user data", exception)
+                currentUsername = "Anonymous"
+                onComplete()
+            }
+        } else {
+            currentUsername = "Anonymous"
+            onComplete()
+        }
+    }
+
     fun initializeNotifications(context: Context) {
         notificationHelper = NotificationHelper(context)
+    }
+
+    fun setUsernameAndListen() {
+        setCurrentUsername {
+            listenForComments()
+        }
     }
 
     fun listenForComments() {
         val startListeningTime = System.currentTimeMillis()
         val sentNotifications = mutableSetOf<String>()
-        FirebaseFirestore.getInstance()
-            .collection("pins")
+
+        db.collection("pins")
             .addSnapshotListener { pinsSnapshot, e ->
                 if (e != null) {
                     Log.w("Firebase", "Listen failed.", e)
                     return@addSnapshotListener
                 }
+
                 pinsSnapshot?.documents?.forEach { pinDoc ->
                     val locationName = pinDoc.id
 
@@ -52,8 +80,11 @@ class Firebase {
                                     val username = comment["username"] as? String ?: "Anonymous"
                                     val timestamp = comment["timestamp"] as? Long ?: return@forEach
                                     val commentID = change.document.id
-                                    // Limits notifications to only occur during the current app session
-                                    if (timestamp > startListeningTime && sentNotifications.add(commentID)) {
+
+                                    if (timestamp > startListeningTime &&
+                                        sentNotifications.add(commentID) &&
+                                        username != currentUsername
+                                    ) {
                                         checkAndNotify(locationName, commentText, username)
                                     }
                                 }

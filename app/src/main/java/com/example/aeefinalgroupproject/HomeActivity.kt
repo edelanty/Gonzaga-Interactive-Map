@@ -120,7 +120,7 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         // Notifications
         firebase.initializeNotifications(this)
-        firebase.listenForComments()
+        firebase.setUsernameAndListen()
 
         // Add Image Launcher
         imagePickerLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
