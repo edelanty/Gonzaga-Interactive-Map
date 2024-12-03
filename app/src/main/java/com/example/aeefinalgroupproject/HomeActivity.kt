@@ -211,8 +211,9 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
             locationName.contains(query, ignoreCase = true)
         }
         Log.d("SEARCH", "filtering Pins")
+        pinsAdapter.updatePins(filteredPins)
         // Update the visibility of RecyclerView based on the filtered list
-        if (filteredPins.isEmpty()) {
+        if (filteredPins.isEmpty() || query == "") {
             // If there are no pins to display, show "No Results" message and hide RecyclerView
             pinsRecyclerView.visibility = View.GONE
             Log.d("SEARCH", "no results")
