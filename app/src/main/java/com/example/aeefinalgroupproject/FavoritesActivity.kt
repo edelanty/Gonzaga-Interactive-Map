@@ -108,4 +108,10 @@ class FavoritesActivity : AppCompatActivity() {
             }
         }
     }
+
+    // Refresh the data when returning from comment rating activity
+    override fun onResume() {
+        super.onResume()
+        loadFavorites()
+    }
 }

@@ -8,6 +8,8 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.DocumentChange
 import com.google.firebase.firestore.Query
+import com.google.firebase.storage.FirebaseStorage
+import java.net.URL
 
 private const val PINS_COLLECTION = "pins"
 private const val COMMENTS_COLLECTION = "comments"
@@ -70,6 +72,25 @@ class Firebase {
                     notificationHelper.showCommentNotification(locationName, commentText, userName)
                 }
             }
+        }
+    }
+
+    // Delete image from pin when deleting
+    fun deleteImageByUrl(imageURL: String, callback: (Boolean) -> Unit) {
+        val storage = FirebaseStorage.getInstance()
+        try {
+            val decodedUrl = java.net.URLDecoder.decode(imageURL, "UTF-8")
+            val filepath = decodedUrl.substringAfter("/o/").substringBefore("?")
+            val fileRef = storage.reference.child(filepath)
+            fileRef.delete()
+                .addOnSuccessListener { Log.d("FirebaseStorage", "File successfully deleted ${filepath}")
+                callback(true)
+                } .addOnFailureListener { e -> Log.e("FirebaseStorage", "Failed to delete file ${filepath}", e)
+                callback(false)
+                }
+        } catch (e: Exception) {
+            Log.e("FirebaseStorage", "Error parsing url", e)
+            callback(false)
         }
     }
 
@@ -302,6 +323,33 @@ class Firebase {
                 Log.w("Firebase", "Error deleting document", e)
                 onComplete(false)
             }
+    }
+
+    // Remove pin with image
+    fun removePinWithImage(pinName: String, callback: (Boolean) -> Unit) {
+        getPin(pinName) { pinData ->
+            if (pinData != null) {
+                val imageUrl = pinData["imageUrl"] as? String ?: ""
+                if (imageUrl.isNotEmpty()) {
+                    deleteImageByUrl(imageUrl) { imageDeleted ->
+                        if (imageDeleted) {
+                            removePin(pinName) { pinDeleted ->
+                                if (pinDeleted ) {
+                                    Log.d("Firebase", "Pin and image successful deleted")
+                                    callback(true)
+                                } else {
+                                    Log.e("Firebase", "Failed to delete pin")
+                                    callback(false)
+                                }
+                            }
+                        } else {
+                            Log.e("Firebase", "Failed to delete image")
+                            callback(false)
+                        }
+                    }
+                }
+            }
+        }
     }
 
 

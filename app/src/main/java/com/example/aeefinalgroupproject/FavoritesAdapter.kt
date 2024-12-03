@@ -2,6 +2,7 @@ package com.example.aeefinalgroupproject
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +32,13 @@ class FavoritesAdapter(
 
         //Bind the location name and the bell status
         holder.favoriteName.text = locationName
+        holder.favoriteName.isClickable = true
+        holder.favoriteName.setOnClickListener {
+            val intent = Intent(context, CommentRatingActivity::class.java)
+            intent.putExtra("locationName", locationName)
+            context.startActivity(intent)
+        }
+
         holder.notificationBell.setImageResource(
             if (bellStatus) R.drawable.notifications_active else R.drawable.notifications_none
         )

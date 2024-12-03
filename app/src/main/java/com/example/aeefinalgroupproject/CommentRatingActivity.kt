@@ -219,7 +219,7 @@ class CommentRatingActivity : AppCompatActivity() {
         dialogBuilder.setTitle("Delete Pin")
             .setMessage("Are you sure you want to delete your $locationName pin?")
             .setPositiveButton("Yes") { dialog, _ ->
-                firebase.removePin(locationName) { success ->
+                firebase.removePinWithImage(locationName) { success ->
                     if (success) {
                         Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
                     } else {
