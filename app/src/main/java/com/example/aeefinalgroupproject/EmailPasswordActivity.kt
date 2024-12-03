@@ -7,6 +7,9 @@ import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
+import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
@@ -27,6 +30,12 @@ class EmailPasswordActivity : Activity() {
         // Initialize Firebase Auth and Firestore
         auth = FirebaseAuth.getInstance()
         firestore = FirebaseFirestore.getInstance()
+        FirebaseApp.initializeApp(this)
+        val appCheck = FirebaseAppCheck.getInstance()
+        appCheck.installAppCheckProviderFactory(DebugAppCheckProviderFactory.getInstance())
+        FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+            DebugAppCheckProviderFactory.getInstance()
+        )
 
         // Check if the user is already logged in
         checkUser()

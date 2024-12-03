@@ -65,6 +65,7 @@ dependencies {
     implementation("com.google.firebase:firebase-appcheck-safetynet:16.1.2")
     implementation("com.google.firebase:firebase-appcheck:18.0.0")
     implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation(libs.firebase.appcheck.debug)
     annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
