@@ -58,4 +58,6 @@
     <string name="comments">Comments:</string>
     <string name="select_image">Select Image</string>
     <string name="image_preview">Image Preview</string>
+    <string name="pin_title">Pin Title</string>
+    <string name="view_details">View Details</string>
 </resources>

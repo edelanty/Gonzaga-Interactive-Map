@@ -32,10 +32,14 @@ import com.google.firebase.auth.FirebaseAuth
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.View
 import android.widget.ImageView
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.firebase.firestore.FirebaseFirestore
@@ -62,10 +66,46 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
     private lateinit var auth: FirebaseAuth
     private lateinit var currentImagePreview: ImageView
 
+    // search bar
+    private lateinit var searchBar: EditText
+    private lateinit var pinsRecyclerView: RecyclerView
+    private lateinit var pinsAdapter: SearchAdapter
+    // Global list to store all the pins from Firebase
+    private var globalPins = mutableListOf<Map<String, Any>>()
+    private var displayPins = mutableListOf<Map<String, Any>>()
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)
+
+        //search bar
+        searchBar = findViewById(R.id.search_bar)
+        pinsRecyclerView = findViewById(R.id.search_results_list)
+
+        // Initialize search bar adapter
+        pinsAdapter = SearchAdapter(this, emptyList())
+        pinsRecyclerView.adapter = pinsAdapter
+        pinsRecyclerView.layoutManager = LinearLayoutManager(this)
+
+        // Load pins from Firebase for search bar
+        loadPins()
+
+        // Set up the search functionality
+        searchBar.addTextChangedListener(object : TextWatcher {
+            // implementing abstract class, so need all three functions
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // You can leave this empty if you don't need to handle before text changes
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Filter the pins as the text changes
+                filterPins(s.toString())
+            }
+            override fun afterTextChanged(s: Editable?) {
+                // This can be left empty if you don't need to react after text changes
+            }
+        })
 
         // Login
         // Initialize Firebase Auth
@@ -151,6 +191,40 @@ class HomeActivity : AppCompatActivity(), OnMapReadyCallback, NavigationView.OnN
 
         zoomOutButton.setOnClickListener {
             mMap.animateCamera(CameraUpdateFactory.zoomOut())
+        }
+    }
+
+
+    // search bar functions
+    private fun loadPins() {
+        firebase.getGlobalPins { pinList ->
+            // Log the loaded pins
+            Log.d("SEARCH", "Loaded pins: $pinList")
+            // Store the loaded pins in the global list
+            globalPins = pinList.toMutableList()
+        }
+        Log.d("SEARCH", "loaded pins")
+    }
+
+    private fun filterPins(query: String) {
+        // Filter the global pins list based on the query
+        val filteredPins = globalPins.filter { pin ->
+            val locationName = pin["locationName"] as? String ?: ""
+
+            // Check if the location name or description contains the query
+            locationName.contains(query, ignoreCase = true)
+        }
+        Log.d("SEARCH", "filtering Pins")
+        pinsAdapter.updatePins(filteredPins)
+        // Update the visibility of RecyclerView based on the filtered list
+        if (filteredPins.isEmpty() || query == "") {
+            // If there are no pins to display, show "No Results" message and hide RecyclerView
+            pinsRecyclerView.visibility = View.GONE
+            Log.d("SEARCH", "no results")
+        } else {
+            // If there are pins to display, hide the "No Results" message and show RecyclerView
+            pinsRecyclerView.visibility = View.VISIBLE
+            Log.d("SEARCH", "results")
         }
     }
 
