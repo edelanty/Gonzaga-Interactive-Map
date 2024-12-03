@@ -1,79 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:paddingTop="40dp"
     android:paddingStart="20dp"
-    android:paddingEnd="20dp" >
-    <ImageButton
-        android:id="@+id/back_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/back_arrow"
-        android:contentDescription="@string/back_to_home"
-        android:layout_gravity="start"
-        android:padding="20dp" />
+    android:paddingEnd="20dp">
 
-    <TextView
-        android:id="@+id/favorites_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/favorites"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:layout_gravity="center"
-        android:paddingBottom="15dp" />
-
-<!--    COLLEGE HALL-->
-<!--    <LinearLayout-->
-<!--        android:id="@+id/favorite_row"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:orientation="horizontal"-->
-<!--        android:padding="16dp">-->
-
-<!--        <ImageButton-->
-<!--            android:id="@+id/remove_favorite"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="?android:attr/selectableItemBackground"-->
-<!--            app:tint="@android:color/holo_red_dark"-->
-<!--            android:src="@drawable/heart_filled"-->
-<!--            android:padding="16dp"-->
-<!--            android:contentDescription="@string/remove_favorite" />-->
-
-<!--        <TextView-->
-<!--            android:id="@+id/favorite_name"-->
-<!--            android:layout_width="0dp"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_weight="1"-->
-<!--            android:layout_gravity="center_vertical|center_horizontal"-->
-<!--            android:text="@string/college_hall"-->
-<!--            android:textSize="24sp"/>-->
-
-<!--        <ImageButton-->
-<!--            android:id="@+id/notification_bell"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="?android:attr/selectableItemBackground"-->
-<!--            app:tint="@android:color/black"-->
-<!--            android:src="@drawable/notifications_none"-->
-<!--            android:padding="16dp"-->
-<!--            android:contentDescription="@string/notification_bell" />-->
-<!--    </LinearLayout>-->
-
-    <!-- Container for dynamically added favorite rows -->
-    <LinearLayout
-        android:id="@+id/favorites_container"
+    <!-- Top Section with Back Button and Location Name -->
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" />
+        android:layout_height="wrap_content">
 
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@drawable/back_arrow"
+            android:contentDescription="@string/back_to_home"
+            android:layout_gravity="start"
+            android:padding="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
 
+        <TextView
+            android:id="@+id/favorites_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/favorites"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:layout_gravity="center"
+            android:paddingBottom="15dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/back_button"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_goneMarginStart="16dp" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
-
+    <!-- RecyclerView for Favorites -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favorites_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp" />
 </LinearLayout>

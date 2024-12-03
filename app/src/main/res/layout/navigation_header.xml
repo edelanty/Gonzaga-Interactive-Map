@@ -14,9 +14,10 @@
         android:src="@drawable/account_circle" />
 
     <TextView
+        android:id="@+id/user_name_header"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Guest"
+        android:text="@string/guest"
         android:textColor="@android:color/white"
         android:textSize="24sp"
         android:textStyle="bold"

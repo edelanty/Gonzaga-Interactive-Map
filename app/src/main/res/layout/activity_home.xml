@@ -21,6 +21,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
         <LinearLayout
+            android:id="@+id/search_bar_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -59,6 +60,18 @@
                 android:contentDescription="@string/filters"
                 android:src="@drawable/filter_icon" />
         </LinearLayout>
+
+        <!-- RecyclerView for Search Results -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_results_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_below="@id/search_bar_container"
+            android:layout_alignStart="@id/search_bar_container"
+            android:layout_alignEnd="@id/search_bar_container"
+            android:layout_marginTop="8dp"
+            android:background="#80FFFFFF" />
 
         <ImageButton
             android:id="@+id/zoom_in_button"
