@@ -8,6 +8,9 @@ This app enhances the campus experience by offering students a dynamic, student-
 ### How to Get Started
 *Before continuing with these steps, for easiest navigation to your old Android Studio make sure you pin your current version of Android Studio to your taskbar*
 
+The following instructions are to ensure Firebase works as way we got this working was through the Android Studio Assistant (Option 2 in this setup link): https://firebase.google.com/docs/android/setup#assistant 
+
+##### **Instructions:**
 **1. In your current version of Android Studio, navigate to the help tab in the hamburger menu on the top left. Then under the "Help" section at the top:**
 
 * Click "Check for Updates..."
