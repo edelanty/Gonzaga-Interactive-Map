@@ -214,18 +214,41 @@ class CommentRatingActivity : AppCompatActivity() {
     }
 
     //Removes a pin given a specified locationName
+    //Removes a pin given a specified locationName
     private fun deletePin(callback: DeletePinCallback) {
         val dialogBuilder = android.app.AlertDialog.Builder(this)
         dialogBuilder.setTitle("Delete Pin")
             .setMessage("Are you sure you want to delete your $locationName pin?")
             .setPositiveButton("Yes") { dialog, _ ->
-                firebase.removePinWithImage(locationName) { success ->
-                    if (success) {
-                        Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
+                var imageUrl = ""
+
+                firebase.getPin(locationName) { pinData ->
+                    if (pinData != null) {
+                        imageUrl = pinData["imageUrl"].toString()
                     } else {
-                        Toast.makeText(this, "Failed to delete $locationName pin.", Toast.LENGTH_SHORT).show()
+                        Log.e("Firebase", "Failed to fetch pin data")
                     }
-                    callback.onPinDeleted(success)
+                }
+
+                //If there is an image
+                if (imageUrl.isNotEmpty()) {
+                    firebase.removePinWithImage(locationName) { success ->
+                        if (success) {
+                            Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Failed to delete $locationName pin.", Toast.LENGTH_SHORT).show()
+                        }
+                        callback.onPinDeleted(success)
+                    }
+                } else { //No image
+                    firebase.removePin(locationName) { success ->
+                        if (success) {
+                            Toast.makeText(this, "$locationName pin has been deleted!", Toast.LENGTH_SHORT).show()
+                        } else {
+                            Toast.makeText(this, "Failed to delete $locationName pin.", Toast.LENGTH_SHORT).show()
+                        }
+                        callback.onPinDeleted(success)
+                    }
                 }
                 dialog.dismiss()
             }
