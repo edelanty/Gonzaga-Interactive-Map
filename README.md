@@ -47,6 +47,8 @@ The following instructions are to ensure Firebase works as way we got this worki
 **6. Run the app on your emulator:**
 * Ensure you have an emulator set up
 * Build and run the app to see the interactive map of Gonzaga University.
+* Make sure that notifications were enabled *when* the pop-up that displays once you enter Favorites.
+* IF THE ABOVE DIDN'T OCCUR: Go to Settings --> Notifications --> Sort All Apps --> AEE --> Toggle Notifications
 
 ### Where to Get Help
 If you encounter any issues with the project, please contact us through the project's GitHub issues page.
