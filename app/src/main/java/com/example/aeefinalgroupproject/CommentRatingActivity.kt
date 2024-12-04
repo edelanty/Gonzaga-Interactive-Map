@@ -102,12 +102,12 @@ class CommentRatingActivity : AppCompatActivity() {
             deletePin(object : DeletePinCallback {
                 override fun onPinDeleted(success: Boolean) {
                     if (success) {
-                        // Notify the HomeActivity about the deletion
+                        //Notify the HomeActivity about the deletion
                         val resultIntent = Intent()
                         resultIntent.putExtra("deletedPinName", locationName)
                         setResult(RESULT_OK, resultIntent)
 
-                        // Close the CommentRatingActivity
+                        //Close the CommentRatingActivity
                         finish()
                     } else {
                         Toast.makeText(this@CommentRatingActivity, "Failed to delete pin", Toast.LENGTH_SHORT).show()
@@ -123,6 +123,7 @@ class CommentRatingActivity : AppCompatActivity() {
         }
     }
 
+    //Depending on the status of likes for a chosen pin updates the UI
     private fun liked() {
         firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
             val newLikedStatus = !likedStatus
@@ -146,6 +147,7 @@ class CommentRatingActivity : AppCompatActivity() {
         }
     }
 
+    //Depending on the status of likes for a chosen pin updates the UI
     private fun disliked() {
         firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
             val newLikedStatus = false
@@ -169,7 +171,7 @@ class CommentRatingActivity : AppCompatActivity() {
         }
     }
 
-    //TODO comments
+    //Uses intent to take you to the new Comments activity
     private fun comments() {
         val intent = Intent(this, CommentsActivity::class.java)
         intent.putExtra("locationName", locationName)
@@ -263,13 +265,13 @@ class CommentRatingActivity : AppCompatActivity() {
 
     //Updates UI depending on the like/dislike status
     private fun checkLikeDislikeStatus() {
-        // Fetch the current like/dislike status for the pin
+        //Fetch the current like/dislike status for the pin
         firebase.getUserLikeStatus(locationName) { likedStatus, dislikedStatus ->
-            // Update the local variables for UI control
+            //Update the local variables for UI control
             isLiked = likedStatus
             isDisliked = dislikedStatus
 
-            // Update the UI based on the retrieved statuses
+            //Update the UI based on the retrieved statuses
             updateLikeDislikeUI()
         }
     }
@@ -339,7 +341,8 @@ class CommentRatingActivity : AppCompatActivity() {
             }
         }
     }
-    // Refresh the data when returning from comments activity
+
+    //Refresh the data when returning from comments activity
     override fun onResume() {
         super.onResume()
         updateView()

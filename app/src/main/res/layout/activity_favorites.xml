@@ -30,15 +30,17 @@
             android:id="@+id/favorites_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:paddingBottom="15dp"
             android:text="@string/favorites"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:layout_gravity="center"
-            android:paddingBottom="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.331"
             app:layout_constraintStart_toEndOf="@id/back_button"
             app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.545"
             app:layout_goneMarginStart="16dp" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
